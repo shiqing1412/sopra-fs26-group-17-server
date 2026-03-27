@@ -29,7 +29,10 @@ public class User implements Serializable {
 	@Column(nullable = false, unique = true)
 	private String username;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
+	private String password;
+
+	@Column(nullable = false)
 	private String token;
 
 	@Column(nullable = false)
@@ -63,6 +66,14 @@ public class User implements Serializable {
 
 	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public String getToken() {
