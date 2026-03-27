@@ -54,14 +54,14 @@ public class UserService {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty!"); //400 Bad Request
 		}
 		if (password == null || password.trim().isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password cannot be empty!"); //400 Bad Request
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password cannot be empty!");//400 Bad Request
 		}
 		User user = userRepository.findByUsername(username);
 		if (user == null) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!"); //401 Unauthorized
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The username is not correct!"); //401 Unauthorized
 		}
 		if (!user.getPassword().equals(password)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!"); //401 Unauthorized
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The password is incorrect!"); //401 Unauthorized
 		}
 		user.setStatus(UserStatus.ONLINE);
 		user.setToken(UUID.randomUUID().toString());
@@ -113,5 +113,13 @@ public class UserService {
 		}
 		return user;
 	}
+
+	public void logout(String token) {
+		User user = validateToken(token);
+		user.setStatus(UserStatus.OFFLINE);
+		user.setToken(null);
+		userRepository.save(user);
+		userRepository.flush();
+	}	
 
 }
