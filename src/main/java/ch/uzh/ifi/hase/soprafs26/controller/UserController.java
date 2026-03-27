@@ -57,7 +57,7 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	@ResponseStatus(HttpStatus.OK)
+	@ResponseStatus(HttpStatus.OK) //200 OK
 	@ResponseBody
 	public UserGetDTO login(@RequestBody UserPostDTO loginDTO) {
 

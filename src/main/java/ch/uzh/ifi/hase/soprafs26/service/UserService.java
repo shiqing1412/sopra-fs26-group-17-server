@@ -39,7 +39,7 @@ public class UserService {
 	}
 
 	public User createUser(User newUser) {
-    validateUserInput(newUser);
+	validateUserInput(newUser);
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     checkIfUserExists(newUser);
@@ -51,17 +51,17 @@ public class UserService {
 
 	public User login(String username, String password) {
 		if (username == null || username.trim().isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty!");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty!"); //400 Bad Request
 		}
 		if (password == null || password.trim().isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password cannot be empty!");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password cannot be empty!"); //400 Bad Request
 		}
 		User user = userRepository.findByUsername(username);
 		if (user == null) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The username is not correct!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!"); //401 Unauthorized
 		}
 		if (!user.getPassword().equals(password)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The password is incorrect!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!"); //401 Unauthorized
 		}
 		user.setStatus(UserStatus.ONLINE);
 		user.setToken(UUID.randomUUID().toString());
@@ -102,14 +102,14 @@ public class UserService {
 
 	public User validateToken(String token) {
 		if (token == null || token.trim().isEmpty()) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token!"); //401 Unauthorized
 		}
 		User user = userRepository.findByToken(token);
 		if (user == null) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token!"); //401 Unauthorized
 		}
 		if (user.getStatus() != UserStatus.ONLINE) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is offline!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is offline!"); //401 Unauthorized
 		}
 		return user;
 	}
