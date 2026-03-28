@@ -43,6 +43,9 @@ public class UserService {
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     checkIfUserExists(newUser);
+		String hashedPassword = at.favre.lib.crypto.bcrypt.BCrypt.withDefaults()
+            .hashToString(12, newUser.getPassword().toCharArray());
+    newUser.setPassword(hashedPassword);
     newUser = userRepository.save(newUser);
     userRepository.flush();
     log.debug("Created Information for User: {}", newUser);

@@ -48,6 +48,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'   
     testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'at.favre.lib:bcrypt:0.10.2'
 }
 
 bootJar {
