@@ -4,6 +4,9 @@ import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.entity.Trip;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripGetDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 
@@ -32,4 +35,17 @@ public interface DTOMapper {
 	@Mapping(source = "token", target = "token")
 	@Mapping(source = "status", target = "status")
 	UserGetDTO convertEntityToUserGetDTO(User user);
-}
+
+
+	@Mapping(source = "title", target = "title")
+	@Mapping(source = "startDate", target = "startDate")	
+	@Mapping(source = "endDate", target = "endDate")
+	Trip convertTripPostDTOtoEntity(TripPostDTO tripPostDTO);
+
+	@Mapping(source = "tripId", target = "tripId")
+	@Mapping(source = "title", target = "title")
+	@Mapping(source = "startDate", target = "startDate")
+	@Mapping(source = "endDate", target = "endDate")
+	TripGetDTO convertEntityToTripGetDTO(Trip trip);
+
+} 
