@@ -39,7 +39,7 @@ public class UserService {
 	}
 
 	public User createUser(User newUser) {
-    validateUserInput(newUser);
+	validateUserInput(newUser);
     newUser.setToken(UUID.randomUUID().toString());
     newUser.setStatus(UserStatus.OFFLINE);
     checkIfUserExists(newUser);
@@ -47,6 +47,27 @@ public class UserService {
     userRepository.flush();
     log.debug("Created Information for User: {}", newUser);
     return newUser;
+	}
+
+	public User login(String username, String password) {
+		if (username == null || username.trim().isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be empty!"); //400 Bad Request
+		}
+		if (password == null || password.trim().isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The password cannot be empty!"); //400 Bad Request
+		}
+		User user = userRepository.findByUsername(username);
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!"); //401 Unauthorized
+		}
+		if (!user.getPassword().equals(password)) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password!"); //401 Unauthorized
+		}
+		user.setStatus(UserStatus.ONLINE);
+		user.setToken(UUID.randomUUID().toString());
+		userRepository.save(user);
+		userRepository.flush();
+		return user;
 	}
 
 	/**
@@ -60,22 +81,37 @@ public class UserService {
 	 * @see User
 	 */
 	private void checkIfUserExists(User userToBeCreated) {
-    User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-    if (userByUsername != null) {
-        throw new ResponseStatusException(HttpStatus.CONFLICT,
+		User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
+		if (userByUsername != null) {
+			throw new ResponseStatusException(HttpStatus.CONFLICT,
             "Username already taken. Please choose a different one.");
-    }
+		}
 	}	
 
 	private void validateUserInput(User user) {
-    if (user.getUsername() == null || user.getUsername().isBlank()) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is required.");
-    }
-    if (user.getPassword() == null || user.getPassword().isBlank()) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required.");
-    }
-    if (user.getPassword().length() < 6) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters.");
-    }
+		if (user.getUsername() == null || user.getUsername().isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username is required.");
+		}
+		if (user.getPassword() == null || user.getPassword().isBlank()) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required.");
+		}
+		if (user.getPassword().length() < 6) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters.");
+		}
 	}
+
+	public User validateToken(String token) {
+		if (token == null || token.trim().isEmpty()) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token!"); //401 Unauthorized
+		}
+		User user = userRepository.findByToken(token);
+		if (user == null) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token!"); //401 Unauthorized
+		}
+		if (user.getStatus() != UserStatus.ONLINE) {
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User is offline!"); //401 Unauthorized
+		}
+		return user;
+	}
+
 }
