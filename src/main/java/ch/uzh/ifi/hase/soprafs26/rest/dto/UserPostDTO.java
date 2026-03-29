@@ -4,6 +4,7 @@ public class UserPostDTO {
 
     private String username;
     private String password;
+		private String passwordConfirm;
 
     public String getUsername() { 
 			return username; 
@@ -19,5 +20,13 @@ public class UserPostDTO {
 
     public void setPassword(String password) { 
 			this.password = password; 
+		}
+
+		public String getPasswordConfirm() { 
+			return passwordConfirm; 
+		}
+
+		public void setPasswordConfirm(String passwordConfirm) { 
+			this.passwordConfirm = passwordConfirm; 
 		}
 }

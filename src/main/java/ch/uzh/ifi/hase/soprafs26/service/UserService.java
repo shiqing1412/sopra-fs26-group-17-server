@@ -64,8 +64,10 @@ public class UserService {
 		if (user == null) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The username is not correct!"); //401 Unauthorized
 		}
-		if (!user.getPassword().equals(password)) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The password is incorrect!"); //401 Unauthorized
+		boolean passwordMatch = at.favre.lib.crypto.bcrypt.BCrypt.verifyer()
+        .verify(password.toCharArray(), user.getPassword()).verified;
+		if (!passwordMatch) {
+				throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "The password is incorrect!");
 		}
 		user.setStatus(UserStatus.ONLINE);
 		user.setToken(UUID.randomUUID().toString());
