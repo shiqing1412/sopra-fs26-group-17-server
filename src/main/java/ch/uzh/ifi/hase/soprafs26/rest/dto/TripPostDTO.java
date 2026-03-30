@@ -5,16 +5,16 @@ import java.time.LocalDate;
 
 public class TripPostDTO {
     
-    private String title;
+    private String tripTitle;
     private LocalDate startDate;
     private LocalDate endDate;
 
-    public String getTitle() {
-        return title;
+    public String getTripTitle() {
+        return tripTitle;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTripTitle(String tripTitle) {
+        this.tripTitle = tripTitle;
     }
 
 

@@ -33,7 +33,7 @@ public class TripController {
 	private TripGetDTO convertEntityToTripGetDTO(Trip trip) {
 		TripGetDTO dto = new TripGetDTO();
 		dto.setTripId(trip.getTripId());
-		dto.setTitle(trip.getTitle());
+		dto.setTripTitle(trip.getTripTitle());
 		dto.setStartDate(trip.getStartDate());
 		dto.setEndDate(trip.getEndDate());
 		return dto;

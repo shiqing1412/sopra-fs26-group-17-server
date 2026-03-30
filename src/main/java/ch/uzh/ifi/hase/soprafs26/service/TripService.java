@@ -28,7 +28,7 @@ public class TripService {
 
     public Trip createTrip(TripPostDTO tripPostDTO) {
         Trip newTrip = new Trip();
-        newTrip.setTitle(tripPostDTO.getTitle());
+        newTrip.setTripTitle(tripPostDTO.getTripTitle());
         newTrip.setStartDate(tripPostDTO.getStartDate());
         newTrip.setEndDate(tripPostDTO.getEndDate());
 

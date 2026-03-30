@@ -32,10 +32,10 @@ public class Trip implements Serializable {
     }
 
 
-    public String getTitle() {
+    public String getTripTitle() {
         return title;
     }
-    public void setTitle(String title) {
+    public void setTripTitle(String title) {
         this.title = title;
     }
 
