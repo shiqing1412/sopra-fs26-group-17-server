@@ -32,18 +32,18 @@ public class User implements Serializable {
 	@Column(nullable = false)
 	private String password;
 
-	@Column(nullable = true, unique = true)
-	private String token;
-
 	@Column(nullable = false)
 	private UserStatus status;
 
+	@Column(nullable = true, unique = true)
+	private String token;
 
-	public Long getId() {
+
+	public Long getUserId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setUserId(Long id) {
 		this.id = id;
 	}
 
@@ -63,13 +63,7 @@ public class User implements Serializable {
 		this.password = password;
 	}
 
-	public String getToken() {
-		return token;
-	}
 
-	public void setToken(String token) {
-		this.token = token;
-	}
 
 	public UserStatus getStatus() {
 		return status;
@@ -77,5 +71,13 @@ public class User implements Serializable {
 
 	public void setStatus(UserStatus status) {
 		this.status = status;
+	}
+
+		public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
 	}
 }
