@@ -32,17 +32,14 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void createUser_validInputs_success() {
-        // given
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
         testUser.setUsername("testUsername");
         testUser.setPassword("password123");
 
-        // when
         User createdUser = userService.createUser(testUser);
 
-        // then
         assertEquals(testUser.getId(), createdUser.getId());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
         assertNotNull(createdUser.getToken());
@@ -51,7 +48,6 @@ public class UserServiceIntegrationTest {
 
     @Test
     public void createUser_duplicateUsername_throwsException() {
-        // given
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
@@ -59,12 +55,10 @@ public class UserServiceIntegrationTest {
         testUser.setPassword("password123");
         userService.createUser(testUser);
 
-        // attempt to create second user with same username
         User testUser2 = new User();
         testUser2.setUsername("testUsername");
         testUser2.setPassword("password456");
 
-        // then
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
     }
 }
