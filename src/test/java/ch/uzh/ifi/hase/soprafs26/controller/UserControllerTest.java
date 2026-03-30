@@ -60,7 +60,7 @@ public class UserControllerTest {
     @Test
     public void createUser_validInput_userCreated() throws Exception {
         User user = new User();
-        user.setId(1L);
+        user.setUserId(1L);
         user.setUsername("testUsername");
         user.setToken("1");
         user.setStatus(UserStatus.OFFLINE);
@@ -78,7 +78,7 @@ public class UserControllerTest {
 
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
+                .andExpect(jsonPath("$.userId", is(user.getUserId().intValue())))
                 .andExpect(jsonPath("$.username", is(user.getUsername())))
                 .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
     }

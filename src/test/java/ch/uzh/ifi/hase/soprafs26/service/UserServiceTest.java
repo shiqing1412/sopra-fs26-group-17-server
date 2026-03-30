@@ -29,7 +29,7 @@ public class UserServiceTest {
         MockitoAnnotations.openMocks(this);
 
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setUserId(1L);
         testUser.setUsername("testUsername");
         testUser.setPassword("password123");
 
@@ -41,7 +41,7 @@ public class UserServiceTest {
         User createdUser = userService.createUser(testUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
-        assertEquals(testUser.getId(), createdUser.getId());
+        assertEquals(testUser.getUserId(), createdUser.getUserId());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
         assertNotNull(createdUser.getToken());
         assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
