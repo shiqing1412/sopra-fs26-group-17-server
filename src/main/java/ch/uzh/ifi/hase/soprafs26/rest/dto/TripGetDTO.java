@@ -5,7 +5,7 @@ import java.time.LocalDate;
 public class TripGetDTO {
 
     private Long tripId;
-    private String title;
+    private String tripTitle;
     private LocalDate startDate;
     private LocalDate endDate;
     
@@ -17,12 +17,12 @@ public class TripGetDTO {
         this.tripId = tripId;
     }
 
-    public String getTitle() {
-        return title;
+    public String getTripTitle() {
+        return tripTitle;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTripTitle(String tripTitle) {
+        this.tripTitle = tripTitle;
     }
 
     public LocalDate getStartDate() {
