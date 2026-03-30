@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import java.time.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,9 +34,23 @@ public class TripService {
         newTrip.setStartDate(tripPostDTO.getStartDate());
         newTrip.setEndDate(tripPostDTO.getEndDate());
 
+        validateTripDates(newTrip.getStartDate(), newTrip.getEndDate());
+
         newTrip = tripRepository.save(newTrip); //
         return newTrip;
     }
-}
+
+    private void validateTripDates(LocalDate startDate, LocalDate endDate) {
+        
+        if (startDate == null || endDate == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date and end date must not be null."); //400 Bad Request
+        }
     
+        if (startDate.isAfter(endDate)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start date must be before end date."); //400 Bad Request
+        }
+    }   
+
+}
+
 
