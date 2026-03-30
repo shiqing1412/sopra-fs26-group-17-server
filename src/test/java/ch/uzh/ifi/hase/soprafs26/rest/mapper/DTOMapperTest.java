@@ -13,31 +13,25 @@ public class DTOMapperTest {
 
     @Test
     public void testCreateUser_fromUserPostDTO_toUser_success() {
-        // given
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("password123");
 
-        // when
         User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
-        // then
         assertEquals(userPostDTO.getUsername(), user.getUsername());
         assertEquals(userPostDTO.getPassword(), user.getPassword());
     }
 
     @Test
     public void testGetUser_fromUser_toUserGetDTO_success() {
-        // given
         User user = new User();
         user.setUsername("testUsername");
         user.setStatus(UserStatus.OFFLINE);
         user.setToken("test-token");
 
-        // when
         UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
 
-        // then
         assertEquals(user.getId(), userGetDTO.getId());
         assertEquals(user.getUsername(), userGetDTO.getUsername());
         assertEquals(user.getStatus(), userGetDTO.getStatus());

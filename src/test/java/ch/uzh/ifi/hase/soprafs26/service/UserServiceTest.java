@@ -38,10 +38,8 @@ public class UserServiceTest {
 
     @Test
     public void createUser_validInputs_success() {
-        // when
         User createdUser = userService.createUser(testUser);
 
-        // then
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
         assertEquals(testUser.getId(), createdUser.getId());
         assertEquals(testUser.getUsername(), createdUser.getUsername());
@@ -51,31 +49,24 @@ public class UserServiceTest {
 
     @Test
     public void createUser_duplicateUsername_throwsException() {
-        // given — first user already created
         userService.createUser(testUser);
 
-        // when — repository returns existing user on username lookup
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
-        // then
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 
     @Test
     public void createUser_blankPassword_throwsException() {
-        // given
         testUser.setPassword("");
 
-        // then
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 
     @Test
     public void createUser_shortPassword_throwsException() {
-        // given
         testUser.setPassword("abc");
 
-        // then
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 }

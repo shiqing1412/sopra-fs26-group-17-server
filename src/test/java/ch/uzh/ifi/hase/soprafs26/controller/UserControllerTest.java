@@ -41,20 +41,15 @@ public class UserControllerTest {
 
     @Test
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
-        // given
         User user = new User();
         user.setUsername("testUsername");
         user.setStatus(UserStatus.OFFLINE);
 
         List<User> allUsers = Collections.singletonList(user);
-
         given(userService.getUsers()).willReturn(allUsers);
 
-        // when
-        MockHttpServletRequestBuilder getRequest = get("/users")
-                .contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
 
-        // then
         mockMvc.perform(getRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)))
@@ -64,7 +59,6 @@ public class UserControllerTest {
 
     @Test
     public void createUser_validInput_userCreated() throws Exception {
-        // given
         User user = new User();
         user.setId(1L);
         user.setUsername("testUsername");
@@ -78,12 +72,10 @@ public class UserControllerTest {
 
         given(userService.createUser(Mockito.any())).willReturn(user);
 
-        // when
         MockHttpServletRequestBuilder postRequest = post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPostDTO));
 
-        // then
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(user.getId().intValue())))
@@ -93,35 +85,29 @@ public class UserControllerTest {
 
     @Test
     public void createUser_passwordMismatch_throwsBadRequest() throws Exception {
-        // given
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("password123");
         userPostDTO.setPasswordConfirm("differentPassword");
 
-        // when
         MockHttpServletRequestBuilder postRequest = post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPostDTO));
 
-        // then
         mockMvc.perform(postRequest)
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void createUser_nullPasswordConfirm_throwsBadRequest() throws Exception {
-        // given — passwordConfirm omitted entirely
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("password123");
 
-        // when
         MockHttpServletRequestBuilder postRequest = post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPostDTO));
 
-        // then
         mockMvc.perform(postRequest)
                 .andExpect(status().isBadRequest());
     }

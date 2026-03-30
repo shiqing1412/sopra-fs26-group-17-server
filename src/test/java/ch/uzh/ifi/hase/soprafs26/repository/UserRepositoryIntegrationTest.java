@@ -22,7 +22,6 @@ public class UserRepositoryIntegrationTest {
 
     @Test
     public void findByUsername_success() {
-        // given
         User user = new User();
         user.setUsername("testUsername");
         user.setPassword("hashedPassword");
@@ -32,10 +31,8 @@ public class UserRepositoryIntegrationTest {
         entityManager.persist(user);
         entityManager.flush();
 
-        // when
         User found = userRepository.findByUsername(user.getUsername());
 
-        // then
         assertNotNull(found.getId());
         assertEquals(found.getUsername(), user.getUsername());
         assertEquals(found.getToken(), user.getToken());
@@ -44,7 +41,6 @@ public class UserRepositoryIntegrationTest {
 
     @Test
     public void findByToken_success() {
-        // given
         User user = new User();
         user.setUsername("testUsername");
         user.setPassword("hashedPassword");
@@ -54,10 +50,8 @@ public class UserRepositoryIntegrationTest {
         entityManager.persist(user);
         entityManager.flush();
 
-        // when
         User found = userRepository.findByToken(user.getToken());
 
-        // then
         assertNotNull(found.getId());
         assertEquals(found.getUsername(), user.getUsername());
         assertEquals(found.getToken(), user.getToken());
