@@ -30,20 +30,20 @@ public interface DTOMapper {
 	@Mapping(source = "password", target = "password")
 	User convertUserPostDTOtoEntity(UserPostDTO userPostDTO);
 
-	@Mapping(source = "id", target = "id")
+	@Mapping(source = "userId", target = "userId")
 	@Mapping(source = "username", target = "username")
 	@Mapping(source = "token", target = "token")
 	@Mapping(source = "status", target = "status")
 	UserGetDTO convertEntityToUserGetDTO(User user);
 
 
-	@Mapping(source = "title", target = "title")
+	@Mapping(source = "tripTitle", target = "tripTitle")
 	@Mapping(source = "startDate", target = "startDate")	
 	@Mapping(source = "endDate", target = "endDate")
 	Trip convertTripPostDTOtoEntity(TripPostDTO tripPostDTO);
 
 	@Mapping(source = "tripId", target = "tripId")
-	@Mapping(source = "title", target = "title")
+	@Mapping(source = "tripTitle", target = "tripTitle")
 	@Mapping(source = "startDate", target = "startDate")
 	@Mapping(source = "endDate", target = "endDate")
 	TripGetDTO convertEntityToTripGetDTO(Trip trip);
