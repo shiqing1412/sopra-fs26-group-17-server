@@ -15,7 +15,7 @@ public class Trip implements Serializable {
     private Long tripId;
     
     @Column(nullable = false)
-    private String title;
+    private String tripTitle;
 
     @Column(nullable = false)
     private LocalDate startDate;
@@ -31,14 +31,12 @@ public class Trip implements Serializable {
         this.tripId = tripId;
     }
 
-
     public String getTripTitle() {
-        return title;
+        return tripTitle;
     }
-    public void setTripTitle(String title) {
-        this.title = title;
+    public void setTripTitle(String tripTitle) {
+        this.tripTitle = tripTitle;
     }
-
 
     public LocalDate getStartDate() {
         return startDate;
