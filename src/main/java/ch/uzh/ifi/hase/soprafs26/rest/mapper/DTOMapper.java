@@ -47,5 +47,6 @@ public interface DTOMapper {
 	@Mapping(source = "startDate", target = "startDate")
 	@Mapping(source = "endDate", target = "endDate")
 	TripGetDTO convertEntityToTripGetDTO(Trip trip);
+	//
 
 } 
