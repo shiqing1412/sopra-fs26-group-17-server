@@ -9,43 +9,37 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * DTOMapperTest
- * Tests if the mapping between the internal and the external/API representation
- * works.
- */
 public class DTOMapperTest {
-	@Test
-	public void testCreateUser_fromUserPostDTO_toUser_success() {
-		// create UserPostDTO
-		UserPostDTO userPostDTO = new UserPostDTO();
-		userPostDTO.setName("name");
-		userPostDTO.setUsername("username");
 
-		// MAP -> Create user
-		User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+    @Test
+    public void testCreateUser_fromUserPostDTO_toUser_success() {
+        // given
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setUsername("testUsername");
+        userPostDTO.setPassword("password123");
 
-		// check content
-		assertEquals(userPostDTO.getName(), user.getName());
-		assertEquals(userPostDTO.getUsername(), user.getUsername());
-	}
+        // when
+        User user = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
-	@Test
-	public void testGetUser_fromUser_toUserGetDTO_success() {
-		// create User
-		User user = new User();
-		user.setName("Firstname Lastname");
-		user.setUsername("firstname@lastname");
-		user.setStatus(UserStatus.OFFLINE);
-		user.setToken("1");
+        // then
+        assertEquals(userPostDTO.getUsername(), user.getUsername());
+        assertEquals(userPostDTO.getPassword(), user.getPassword());
+    }
 
-		// MAP -> Create UserGetDTO
-		UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+    @Test
+    public void testGetUser_fromUser_toUserGetDTO_success() {
+        // given
+        User user = new User();
+        user.setUsername("testUsername");
+        user.setStatus(UserStatus.OFFLINE);
+        user.setToken("test-token");
 
-		// check content
-		assertEquals(user.getId(), userGetDTO.getId());
-		assertEquals(user.getName(), userGetDTO.getName());
-		assertEquals(user.getUsername(), userGetDTO.getUsername());
-		assertEquals(user.getStatus(), userGetDTO.getStatus());
-	}
+        // when
+        UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+
+        // then
+        assertEquals(user.getId(), userGetDTO.getId());
+        assertEquals(user.getUsername(), userGetDTO.getUsername());
+        assertEquals(user.getStatus(), userGetDTO.getStatus());
+    }
 }

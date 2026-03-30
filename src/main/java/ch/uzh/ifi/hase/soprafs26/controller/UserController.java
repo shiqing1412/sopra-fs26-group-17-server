@@ -48,10 +48,21 @@ public class UserController {
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
 	public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) {
-		if (userPostDTO.getPasswordConfirm() == null || 
-        !userPostDTO.getPassword().equals(userPostDTO.getPasswordConfirm())) {
+		// 1. Null/blank checks first (service will also do these, but we need
+    //    them here before we attempt the .equals() comparison)
+		if (userPostDTO.getPassword() == null || userPostDTO.getPassword().isBlank()) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required.");
+    }
+		if (userPostDTO.getPasswordConfirm() == null || userPostDTO.getPasswordConfirm().isBlank()) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please confirm your password.");
+    }
+
+		// 2. Match check — safe to call .equals() now, both are non-null
+		if (!userPostDTO.getPassword().equals(userPostDTO.getPasswordConfirm())) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Passwords do not match.");
     }
+
+		// 3. to service (length check + duplicate check happen there)
 		// convert API user to internal representation
 		User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
