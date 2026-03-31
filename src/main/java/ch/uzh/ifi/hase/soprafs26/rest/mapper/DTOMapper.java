@@ -42,11 +42,18 @@ public interface DTOMapper {
 	@Mapping(source = "endDate", target = "endDate")
 	Trip convertTripPostDTOtoEntity(TripPostDTO tripPostDTO);
 
+	
 	@Mapping(source = "tripId", target = "tripId")
 	@Mapping(source = "tripTitle", target = "tripTitle")
 	@Mapping(source = "startDate", target = "startDate")
 	@Mapping(source = "endDate", target = "endDate")
+	@Mapping(source = "owner", target = "owner", qualifiedByName = "mapUserToUsername")
 	TripGetDTO convertEntityToTripGetDTO(Trip trip);
-	//
+
+	@Named("mapUserToUsername")
+	default String mapUserToUsername(User user) {
+		return user != null ? user.getUsername() : null;
+	}
+
 
 } 

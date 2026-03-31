@@ -17,11 +17,16 @@ public class Trip implements Serializable {
     @Column(nullable = false)
     private String tripTitle;
 
+    @ManyToOne
+    @JoinColumn(name = "owner_id")  //DB level, we should handle the owner_id column in the trips table, which is a foreign key referencing the users table
+    private User owner;
+
     @Column(nullable = false)
     private LocalDate startDate;
    
     @Column(nullable = false)
     private LocalDate endDate;
+
 
     
     public Long getTripId() {
@@ -36,6 +41,13 @@ public class Trip implements Serializable {
     }
     public void setTripTitle(String tripTitle) {
         this.tripTitle = tripTitle;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 
     public LocalDate getStartDate() {

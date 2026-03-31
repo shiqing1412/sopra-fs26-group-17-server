@@ -8,6 +8,7 @@ public class TripGetDTO {
     private String tripTitle;
     private LocalDate startDate;
     private LocalDate endDate;
+    private String owner;
     
     public Long getTripId() {
         return tripId;
@@ -21,6 +22,14 @@ public class TripGetDTO {
         return tripTitle;
     }
 
+    public String getOwner() {
+        return owner;
+    }
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    
     public void setTripTitle(String tripTitle) {
         this.tripTitle = tripTitle;
     }
