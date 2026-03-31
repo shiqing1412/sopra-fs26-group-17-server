@@ -9,17 +9,21 @@ public class TripGetDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private String owner;
+    private String shareCode;
     
+
     public Long getTripId() {
         return tripId;
     }
-
     public void setTripId(Long tripId) {
         this.tripId = tripId;
     }
 
     public String getTripTitle() {
         return tripTitle;
+    }
+    public void setTripTitle(String tripTitle) {
+        this.tripTitle = tripTitle;
     }
 
     public String getOwner() {
@@ -28,16 +32,10 @@ public class TripGetDTO {
     public void setOwner(String owner) {
         this.owner = owner;
     }
-
     
-    public void setTripTitle(String tripTitle) {
-        this.tripTitle = tripTitle;
-    }
-
     public LocalDate getStartDate() {
         return startDate;
     }
-
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
@@ -45,9 +43,15 @@ public class TripGetDTO {
     public LocalDate getEndDate() {
         return endDate;
     }
-
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public String getShareCode() {
+        return shareCode;
+    }
+    public void setShareCode(String shareCode) {
+        this.shareCode = shareCode;
     }
 
 }

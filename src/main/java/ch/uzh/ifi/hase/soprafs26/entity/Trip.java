@@ -27,6 +27,9 @@ public class Trip implements Serializable {
     @JoinColumn(name = "owner_id", nullable = false)  //DB level, we should handle the owner_id column in the trips table, which is a foreign key referencing the users table
     private User owner;
 
+    @Column(nullable = false)
+    private String shareCode;
+
     
     public Long getTripId() {
         return tripId;
@@ -62,6 +65,13 @@ public class Trip implements Serializable {
     }
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public String getShareCode() {
+        return shareCode;
+    }
+    public void setShareCode(String shareCode) {
+        this.shareCode = shareCode;
     }
 
 }
