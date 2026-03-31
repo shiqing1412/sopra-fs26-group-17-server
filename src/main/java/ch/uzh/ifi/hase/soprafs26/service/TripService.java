@@ -34,7 +34,7 @@ public class TripService {
         
         validateTripDates(newTrip.getStartDate(), newTrip.getEndDate());
         newTrip.setOwner(owner);
-        newTrip = tripRepository.save(newTrip); //
+        newTrip = tripRepository.save(newTrip);
         return newTrip;
     }
 
