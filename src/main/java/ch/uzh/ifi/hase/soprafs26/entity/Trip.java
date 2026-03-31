@@ -17,7 +17,7 @@ public class Trip implements Serializable {
     @Column(nullable = false)
     private String tripTitle;
 
-    @ManyToOne
+    @ManyToOne //Many trips can be owned by one user, but each trip has only one owner
     @JoinColumn(name = "owner_id")  //DB level, we should handle the owner_id column in the trips table, which is a foreign key referencing the users table
     private User owner;
 

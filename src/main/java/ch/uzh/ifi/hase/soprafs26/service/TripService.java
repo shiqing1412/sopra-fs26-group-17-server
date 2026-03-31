@@ -26,14 +26,14 @@ public class TripService {
         this.tripRepository = tripRepository;
     }
 
-    public Trip createTrip(TripPostDTO tripPostDTO, User creator) {
+    public Trip createTrip(TripPostDTO tripPostDTO, User owner) {
         Trip newTrip = new Trip();
         newTrip.setTripTitle(tripPostDTO.getTripTitle());
         newTrip.setStartDate(tripPostDTO.getStartDate());
         newTrip.setEndDate(tripPostDTO.getEndDate());
         
         validateTripDates(newTrip.getStartDate(), newTrip.getEndDate());
-        newTrip.setOwner(creator);
+        newTrip.setOwner(owner);
         newTrip = tripRepository.save(newTrip); //
         return newTrip;
     }
