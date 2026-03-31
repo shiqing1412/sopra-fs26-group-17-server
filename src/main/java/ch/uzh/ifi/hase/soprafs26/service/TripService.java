@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import java.lang.reflect.Member;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +13,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
+import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
+import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 
 
@@ -21,9 +25,11 @@ public class TripService {
     
     private final Logger log = LoggerFactory.getLogger(TripService.class);
     private final TripRepository tripRepository;
+    private final MembershipRepository membershipRepository;
 
-    public TripService(TripRepository tripRepository) {
+    public TripService(TripRepository tripRepository, MembershipRepository membershipRepository) {
         this.tripRepository = tripRepository;
+        this.membershipRepository = membershipRepository;
     }
 
     public Trip createTrip(TripPostDTO tripPostDTO, User owner) {
@@ -35,6 +41,15 @@ public class TripService {
         validateTripDates(newTrip.getStartDate(), newTrip.getEndDate());
         newTrip.setOwner(owner);
         newTrip = tripRepository.save(newTrip);
+
+        //create membership for the owner
+        Membership membership = new Membership();
+        membership.setTrip(newTrip);
+        membership.setUser(owner);
+        membership.setRole("OWNER");
+        membership.setJoinedAt(LocalDateTime.now());
+        membershipRepository.save(membership);
+
         return newTrip;
     }
 
