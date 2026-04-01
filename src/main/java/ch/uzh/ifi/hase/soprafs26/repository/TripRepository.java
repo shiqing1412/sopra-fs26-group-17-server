@@ -10,8 +10,6 @@ import java.util.Optional;
 @Repository("tripRepository")
 public interface TripRepository extends JpaRepository<Trip, Long> { 
 
-    boolean existsByShareCode(String shareCode);
-    
-    Optional<Trip> findByShareCode(String shareCode); //for join
+    boolean existsByShareCode(String shareCode); // ensure uniqueness
     
 }   
