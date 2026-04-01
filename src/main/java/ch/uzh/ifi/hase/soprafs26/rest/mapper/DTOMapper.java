@@ -36,18 +36,17 @@ public interface DTOMapper {
 	@Mapping(source = "status", target = "status")
 	UserGetDTO convertEntityToUserGetDTO(User user);
 
-
 	@Mapping(source = "tripTitle", target = "tripTitle")
 	@Mapping(source = "startDate", target = "startDate")	
 	@Mapping(source = "endDate", target = "endDate")
 	Trip convertTripPostDTOtoEntity(TripPostDTO tripPostDTO);
-
 	
 	@Mapping(source = "tripId", target = "tripId")
 	@Mapping(source = "tripTitle", target = "tripTitle")
 	@Mapping(source = "startDate", target = "startDate")
 	@Mapping(source = "endDate", target = "endDate")
 	@Mapping(source = "owner", target = "owner", qualifiedByName = "mapUserToUsername")
+	@Mapping(source = "shareCode", target = "shareCode")
 	TripGetDTO convertEntityToTripGetDTO(Trip trip);
 
 	@Named("mapUserToUsername")

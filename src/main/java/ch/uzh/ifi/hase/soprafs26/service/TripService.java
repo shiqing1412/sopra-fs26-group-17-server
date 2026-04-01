@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs26.service;
 import java.lang.reflect.Member;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class TripService {
         
         validateTripDates(newTrip.getStartDate(), newTrip.getEndDate());
         newTrip.setOwner(owner);
+        newTrip.setShareCode(generateShareCode());
         newTrip = tripRepository.save(newTrip);
 
         //create membership for the owner
@@ -67,7 +69,15 @@ public class TripService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                 "Start date must not be in the past."); //400 Bad Request
         }*/
-    }   
+    }
+
+    private String generateShareCode() {
+        String shareCode;
+        do {
+            shareCode = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        } while (tripRepository.existsByShareCode(shareCode));
+        return shareCode;
+    }
 
 }
 
