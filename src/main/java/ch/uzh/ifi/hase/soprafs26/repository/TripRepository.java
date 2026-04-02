@@ -12,4 +12,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
 
     boolean existsByShareCode(String shareCode); // ensure uniqueness
     
+    Optional<Trip> findByShareCode(String shareCode);
+    
 }   
