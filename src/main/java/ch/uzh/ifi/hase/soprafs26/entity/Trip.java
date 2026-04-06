@@ -23,6 +23,10 @@ public class Trip implements Serializable {
     @Column(nullable = false)
     private LocalDate endDate;
 
+    @ManyToOne //Many trips can be owned by one user, but each trip has only one owner
+    @JoinColumn(name = "owner_id", nullable = false)  //DB level, we should handle the owner_id column in the trips table, which is a foreign key referencing the users table
+    private User owner;
+
     
     public Long getTripId() {
         return tripId;
@@ -52,5 +56,12 @@ public class Trip implements Serializable {
         this.endDate = endDate;
     }
 
-    
+
+    public User getOwner() {
+        return owner;
+    }
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
 }
