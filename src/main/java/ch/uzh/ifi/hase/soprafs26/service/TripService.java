@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
-import java.lang.reflect.Member;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,7 +17,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
-
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 
 @Service
 @Transactional
@@ -78,6 +77,31 @@ public class TripService {
         } while (tripRepository.existsByShareCode(shareCode));
         return shareCode;
     }
+
+    public TripJoinResponseDTO joinTrip(String joinToken, User currentUser){
+        Trip trip = tripRepository.findByShareCode(joinToken)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found with the provided share code."));
+
+        boolean alreadyMember = membershipRepository.existsByTripAndUser(trip, currentUser);
+
+        if (!alreadyMember) {
+            Membership membership = new Membership();
+            membership.setTrip(trip);
+            membership.setUser(currentUser);
+            membership.setRole("MEMBER");
+            membership.setJoinedAt(LocalDateTime.now());
+            membershipRepository.save(membership);
+        }
+
+        
+        TripJoinResponseDTO response = new TripJoinResponseDTO();
+        response.setTripId(trip.getTripId());
+        response.setTripTitle(trip.getTripTitle());
+        response.setAlreadyMember(alreadyMember);
+
+        return response;
+    }
+
 
 }
 
