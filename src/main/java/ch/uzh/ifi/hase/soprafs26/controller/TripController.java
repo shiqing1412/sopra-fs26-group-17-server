@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.service.TripService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
@@ -34,6 +35,14 @@ public class TripController {
 		Trip createdTrip = tripService.createTrip(tripPostDTO, currentUser);	
 		
 		return 	DTOMapper.INSTANCE.convertEntityToTripGetDTO(createdTrip);
+	}
+
+	@PostMapping ("/join/{joinToken}")
+	@ResponseStatus(HttpStatus.OK) // 200 OK
+	@ResponseBody
+	public TripJoinResponseDTO joinTrip(@PathVariable String joinToken, @RequestHeader("Authorization") String token) {
+		User currentUser = userService.validateToken(token);
+		return tripService.joinTrip(joinToken, currentUser);
 	}
 
 }
