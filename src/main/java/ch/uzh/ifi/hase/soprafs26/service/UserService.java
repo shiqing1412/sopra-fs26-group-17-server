@@ -42,7 +42,7 @@ public class UserService {
 	public User createUser(User newUser) {
 	validateUserInput(newUser);
     newUser.setToken(UUID.randomUUID().toString());
-    newUser.setStatus(UserStatus.OFFLINE);
+		newUser.setStatus(UserStatus.ONLINE);
     checkIfUserExists(newUser);
 		String hashedPassword = at.favre.lib.crypto.bcrypt.BCrypt.withDefaults()
             .hashToString(12, newUser.getPassword().toCharArray());

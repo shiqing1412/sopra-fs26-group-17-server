@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "trips")
 public class Trip implements Serializable {
@@ -23,12 +26,18 @@ public class Trip implements Serializable {
     @Column(nullable = false)
     private LocalDate endDate;
 
+    @Column(nullable = false, unique = true)
+    private String shareCode;
+
     @ManyToOne //Many trips can be owned by one user, but each trip has only one owner
     @JoinColumn(name = "owner_id", nullable = false)  //DB level, we should handle the owner_id column in the trips table, which is a foreign key referencing the users table
     private User owner;
 
-    @Column(nullable = false)
-    private String shareCode;
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Event> events = new ArrayList<>();
+
+    @OneToMany(mappedBy = "trip", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Membership> memberships = new ArrayList<>();
 
     
     public Long getTripId() {
@@ -67,11 +76,25 @@ public class Trip implements Serializable {
         this.owner = owner;
     }
 
-    public String getShareCode() {
-        return shareCode;
+    public String getShareCode() { 
+        return shareCode; 
     }
-    public void setShareCode(String shareCode) {
-        this.shareCode = shareCode;
+    public void setShareCode(String shareCode) { 
+        this.shareCode = shareCode; 
+    }
+
+    public List<Event> getEvents() { 
+        return events; 
+    }
+    public void setEvents(List<Event> events) { 
+        this.events = events; 
+    }
+
+    public List<Membership> getMemberships() { 
+        return memberships; 
+    }
+    public void setMemberships(List<Membership> memberships) { 
+        this.memberships = memberships; 
     }
 
 }
