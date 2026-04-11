@@ -102,6 +102,23 @@ public class TripService {
         return response;
     }
 
+    public void checkMembership(Trip trip, User user) {
+    boolean isMember = membershipRepository.existsByTripAndUser(trip, user);
+    boolean isOwner = trip.getOwner().getUserId().equals(user.getUserId());
+    if (!isMember && !isOwner) {
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+            "You are not a member of this trip.");
+        }
+    }
+
+    public Trip getTripById(Long tripId) {
+        return tripRepository.findById(tripId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Trip not found."));
+    }
+
+    
+
 
 }
 
