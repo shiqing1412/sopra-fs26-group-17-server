@@ -77,38 +77,4 @@ public class EventService {
 
     return days;
   }
-    private final EventRepository eventRepository;
-    private final TripService tripService;
-
-    public EventService(EventRepository eventRepository, TripService tripService) {
-        this.eventRepository = eventRepository;
-        this.tripService = tripService;
-    }
-
-    public List<DayDTO> getEventsGroupedByDay(Long tripId, User requestingUser) {
-        Trip trip = tripService.getTripById(tripId);
-        tripService.checkMembership(trip, requestingUser);
-
-        List<Event> events = eventRepository
-            .findByTrip_TripIdOrderByDateAscTimeAsc(tripId);
-
-        Map<LocalDate, List<EventGetDTO>> byDate = events.stream()
-            .collect(Collectors.groupingBy(
-                Event::getDate,
-                Collectors.mapping(
-                    DTOMapper.INSTANCE::convertEntityToEventGetDTO,
-                    Collectors.toList()
-                )
-            ));
-
-        // One DayDTO per day in trip range, empty list if no events
-        List<DayDTO> days = new ArrayList<>();
-        LocalDate cursor = trip.getStartDate();
-        while (!cursor.isAfter(trip.getEndDate())) {
-            days.add(new DayDTO(cursor, byDate.getOrDefault(cursor, List.of())));
-            cursor = cursor.plusDays(1);
-        }
-
-        return days;
-    }
 }

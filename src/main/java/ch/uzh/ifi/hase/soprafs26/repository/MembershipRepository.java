@@ -9,8 +9,6 @@ import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import java.util.Optional;
-import ch.uzh.ifi.hase.soprafs26.entity.Trip;
-import ch.uzh.ifi.hase.soprafs26.entity.User;
 
 @Repository("membershipRepository")
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
