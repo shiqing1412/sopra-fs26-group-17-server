@@ -4,7 +4,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 

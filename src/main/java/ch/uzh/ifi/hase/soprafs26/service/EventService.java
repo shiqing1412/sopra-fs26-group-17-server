@@ -9,6 +9,8 @@ import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
+import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
+import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
@@ -23,38 +25,56 @@ import java.util.stream.Collectors;
 @Transactional
 public class EventService {
 
-    private final EventRepository eventRepository;
-    private final TripService tripService;
+  private final EventRepository eventRepository;
+  private final TripRepository tripRepository;
+  private final MembershipRepository membershipRepository;
 
-    public EventService(EventRepository eventRepository, TripService tripService) {
-        this.eventRepository = eventRepository;
-        this.tripService = tripService;
+  public EventService(EventRepository eventRepository,
+                      TripRepository tripRepository,
+                      MembershipRepository membershipRepository) {
+    this.eventRepository = eventRepository;
+    this.tripRepository = tripRepository;
+    this.membershipRepository = membershipRepository;
+  }
+
+  public List<DayDTO> getEventsGroupedByDay(Long tripId, User requestingUser) {
+    //Resolve trip or 404
+    Trip trip = tripRepository.findById(tripId)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "Trip not found."));
+
+    //Membership check
+    boolean isMember = membershipRepository
+      .existsByTripIdAndUserId(tripId, requestingUser.getUserId());
+    boolean isOwner = trip.getOwner().getUserId().equals(requestingUser.getUserId());
+
+    if (!isMember && !isOwner) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+        "You are not a member of this trip.");
     }
 
-    public List<DayDTO> getEventsGroupedByDay(Long tripId, User requestingUser) {
-        Trip trip = tripService.getTripById(tripId);
-        tripService.checkMembership(trip, requestingUser);
+    //Fetch all events for this trip, already sorted by date asc, time asc
+    List<Event> events = eventRepository
+      .findByTrip_TripIdOrderByDateAscTimeAsc(tripId);
 
-        List<Event> events = eventRepository
-            .findByTrip_TripIdOrderByDateAscTimeAsc(tripId);
+    // Group events by date into a map
+    Map<LocalDate, List<EventGetDTO>> byDate = events.stream()
+      .collect(Collectors.groupingBy(
+        Event::getDate,
+        Collectors.mapping(
+          DTOMapper.INSTANCE::convertEntityToEventGetDTO,
+          Collectors.toList()
+        )
+      ));
 
-        Map<LocalDate, List<EventGetDTO>> byDate = events.stream()
-            .collect(Collectors.groupingBy(
-                Event::getDate,
-                Collectors.mapping(
-                    DTOMapper.INSTANCE::convertEntityToEventGetDTO,
-                    Collectors.toList()
-                )
-            ));
-
-        // One DayDTO per day in trip range, empty list if no events
-        List<DayDTO> days = new ArrayList<>();
-        LocalDate cursor = trip.getStartDate();
-        while (!cursor.isAfter(trip.getEndDate())) {
-            days.add(new DayDTO(cursor, byDate.getOrDefault(cursor, List.of())));
-            cursor = cursor.plusDays(1);
-        }
-
-        return days;
+    // Build a DayDTO for every day in the trip range, even if no events
+    List<DayDTO> days = new ArrayList<>();
+    LocalDate cursor = trip.getStartDate();
+    while (!cursor.isAfter(trip.getEndDate())) {
+      days.add(new DayDTO(cursor, byDate.getOrDefault(cursor, List.of())));
+      cursor = cursor.plusDays(1);
     }
+
+    return days;
+  }
 }
