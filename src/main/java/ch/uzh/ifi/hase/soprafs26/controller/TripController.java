@@ -45,14 +45,4 @@ public class TripController {
 		return tripService.joinTrip(joinToken, currentUser);
 	}
 
-	@GetMapping("/{tripId}")
-	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
-	public TripGetDTO getTripById(@PathVariable Long tripId, @RequestHeader("Authorization") String token) {
-		User currentUser = userService.validateToken(token);
-		Trip trip = tripService.getTripById(tripId);
-		tripService.checkMembership(trip, currentUser);
-		return DTOMapper.INSTANCE.convertEntityToTripGetDTO(trip);
-	}
-
 }
