@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs26.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,6 +118,17 @@ public class TripService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                 "Trip not found."));
     }
+
+    public List<Trip> getTripsForUser(User user){
+        List<Membership> memberships = membershipRepository.findByUser(user);
+        
+        List<Trip> trips = new ArrayList<>();
+        for (Membership membership : memberships) {
+            trips.add(membership.getTrip());
+            }
+            
+        return trips;
+    } 
 
     
 
