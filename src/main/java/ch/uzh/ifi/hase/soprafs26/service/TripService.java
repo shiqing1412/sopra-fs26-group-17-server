@@ -20,6 +20,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 
 @Service
 @Transactional
@@ -128,7 +129,31 @@ public class TripService {
             }
             
         return trips;
-    } 
+    }
+    
+    public List<TripMemberDTO> getTripMembers(Long tripId, User currentUser) {
+        Trip trip = getAuthorizedTrip(tripId, currentUser);
+        List<Membership> memberships = membershipRepository.findByTrip(trip);
+        
+        List<TripMemberDTO> members = new ArrayList<>();
+        for (Membership membership : memberships) {
+            TripMemberDTO memberDTO = new TripMemberDTO();
+            memberDTO.setUserId(membership.getUser().getUserId());
+            memberDTO.setUsername(membership.getUser().getUsername());
+            memberDTO.setRole(membership.getRole());
+            memberDTO.setStatus(membership.getUser().getStatus().toString());
+            members.add(memberDTO);
+        }
+        
+        return members;
+    }
+
+    // validate that the user is a member of the trip before returning the trip details
+    public Trip getAuthorizedTrip(Long tripId, User currentUser) {
+        Trip trip = getTripById(tripId);
+        checkMembership(trip, currentUser);
+        return trip;
+    }
 
     
 
