@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import java.util.Optional;
+import java.util.List;
 
 @Repository("membershipRepository")
 public interface MembershipRepository extends JpaRepository<Membership, Long> {
@@ -20,4 +21,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     boolean existsByTripIdAndUserId(@Param("tripId") Long tripId, @Param("userId") Long userId);
 
     boolean existsByTripAndUser(Trip trip, User user);
+    List<Membership> findByTrip(Trip trip);
+    List<Membership> findByUser(User user);
 }

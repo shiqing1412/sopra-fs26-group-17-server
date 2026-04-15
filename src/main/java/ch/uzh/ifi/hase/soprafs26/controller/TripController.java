@@ -12,6 +12,9 @@ import ch.uzh.ifi.hase.soprafs26.service.TripService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 
+import java.util.List;
+import java.util.ArrayList;
+
 
 
 @RestController
@@ -55,4 +58,16 @@ public class TripController {
 		return DTOMapper.INSTANCE.convertEntityToTripGetDTO(trip);
 	}
 
+	@GetMapping
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<TripGetDTO> getAllTrips(@RequestHeader("Authorization") String token) {
+		User currentUser = userService.validateToken(token);
+		List<TripGetDTO> tripGetDTOs = new ArrayList<>();
+		for (Trip trip : tripService.getTripsForUser(currentUser)) {
+			tripGetDTOs.add(DTOMapper.INSTANCE.convertEntityToTripGetDTO(trip));
+		}
+		return tripGetDTOs;
+	}
 }
+
