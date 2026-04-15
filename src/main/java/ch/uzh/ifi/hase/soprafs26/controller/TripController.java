@@ -7,6 +7,8 @@ import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripDetailDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.service.TripService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
@@ -51,14 +53,16 @@ public class TripController {
 	@GetMapping("/{tripId}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public TripGetDTO getTripById(@PathVariable Long tripId, @RequestHeader("Authorization") String token) {
+	public TripDetailDTO getTripById(@PathVariable Long tripId, @RequestHeader("Authorization") String token) {
 		User currentUser = userService.validateToken(token);
-		Trip trip = tripService.getTripById(tripId);
-		tripService.checkMembership(trip, currentUser);
-		return DTOMapper.INSTANCE.convertEntityToTripGetDTO(trip);
+		Trip trip = tripService.getAuthorizedTrip(tripId, currentUser);
+		List<TripMemberDTO> members = tripService.getTripMembers(tripId, currentUser);
+		TripDetailDTO tripDetailDTO = DTOMapper.INSTANCE.convertEntityToTripDetailDTO(trip);
+		tripDetailDTO.setMembers(members);
+		return tripDetailDTO;
 	}
 
-	@GetMapping
+	@GetMapping //show all trips of the user
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public List<TripGetDTO> getAllTrips(@RequestHeader("Authorization") String token) {
@@ -68,6 +72,14 @@ public class TripController {
 			tripGetDTOs.add(DTOMapper.INSTANCE.convertEntityToTripGetDTO(trip));
 		}
 		return tripGetDTOs;
+	}
+
+	@GetMapping("/{tripId}/members")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public List<TripMemberDTO> getTripMembers(@PathVariable Long tripId, @RequestHeader("Authorization") String token) {
+		User currentUser = userService.validateToken(token);
+		return tripService.getTripMembers(tripId, currentUser);
 	}
 }
 

@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripDetailDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
@@ -51,6 +52,14 @@ public interface DTOMapper {
 	@Mapping(source = "owner", target = "owner", qualifiedByName = "mapUserToUsername")
 	@Mapping(source = "shareCode", target = "shareCode")
 	TripGetDTO convertEntityToTripGetDTO(Trip trip);
+
+	@Mapping(source = "tripId", target = "tripId")
+	@Mapping(source = "tripTitle", target = "tripTitle")
+	@Mapping(source = "startDate", target = "startDate")
+	@Mapping(source = "endDate", target = "endDate")
+	@Mapping(source = "owner", target = "owner", qualifiedByName = "mapUserToUsername")
+	@Mapping(source = "shareCode", target = "shareCode")
+	TripDetailDTO convertEntityToTripDetailDTO(Trip trip);
 
 	@Mapping(source = "date",            target = "date")
 	@Mapping(source = "time",            target = "time")
