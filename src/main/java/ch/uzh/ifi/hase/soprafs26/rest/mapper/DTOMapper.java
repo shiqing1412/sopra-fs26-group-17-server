@@ -37,13 +37,14 @@ public interface DTOMapper {
 
 	@Mapping(source = "userId", target = "userId")
 	@Mapping(source = "username", target = "username")
-	@Mapping(source = "token", target = "token")
 	@Mapping(source = "status", target = "status")
 	UserGetDTO convertEntityToUserGetDTO(User user);
 
 	@Mapping(source = "tripTitle", target = "tripTitle")
 	@Mapping(source = "startDate", target = "startDate")	
 	@Mapping(source = "endDate", target = "endDate")
+	@Mapping(target = "events", ignore = true)
+	@Mapping(target = "memberships", ignore = true)
 	Trip convertTripPostDTOtoEntity(TripPostDTO tripPostDTO);
 	
 	@Mapping(source = "tripId", target = "tripId")
@@ -60,19 +61,22 @@ public interface DTOMapper {
 	@Mapping(source = "endDate", target = "endDate")
 	@Mapping(source = "owner", target = "owner", qualifiedByName = "mapUserToUsername")
 	@Mapping(source = "shareCode", target = "shareCode")
+	@Mapping(source = "memberships", target = "members")
 	TripDetailDTO convertEntityToTripDetailDTO(Trip trip);
 
+	@Mapping(source = "eventId", target = "eventId")
+	@Mapping(source = "eventTitle", target = "eventTitle")
 	@Mapping(source = "date",            target = "date")
 	@Mapping(source = "time",            target = "time")
 	@Mapping(source = "notes",           target = "notes")
 	@Mapping(source = "location.name",   target = "placeName")
-	@Mapping(source = "location.latitude",  target = "lat")
-	@Mapping(source = "location.longitude", target = "lng")
-	@Mapping(source = "creator",         target = "createdBy", qualifiedByName = "mapUserToUsername")
+	@Mapping(source = "location.lat",  target = "lat")
+	@Mapping(source = "location.lng", target = "lng")
+	@Mapping(source = "creator",      target = "createdBy", qualifiedByName = "mapUserToUsername")
 	EventGetDTO convertEntityToEventGetDTO(Event event);
 
 	@Mapping(source = "eventTitle", target = "eventTitle")
-	@Mapping(source = "dayDate",    target = "date")
+	@Mapping(source = "date",    target = "date")
 	@Mapping(source = "time",       target = "time")
 	@Mapping(source = "notes",      target = "notes")
 	@Mapping(target = "location",   ignore = true)
@@ -86,6 +90,4 @@ public interface DTOMapper {
 	default String mapUserToUsername(User user) {
 		return user != null ? user.getUsername() : null;
 	}
-
-
 } 
