@@ -13,4 +13,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByTrip_TripIdOrderByDateAscTimeAsc(Long tripId);
 
     List<Event> findByTrip_TripIdAndCreatedAtAfter(Long tripId, LocalDateTime since);
+
+    List<Event> findByTrip_TripIdAndEventId(Long tripId, Long eventId);
+
 }
