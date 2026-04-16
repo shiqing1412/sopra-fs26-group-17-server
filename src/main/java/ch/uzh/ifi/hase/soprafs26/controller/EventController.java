@@ -47,7 +47,7 @@ public class EventController {
   }
 
   @PutMapping("/{tripId}/events/{eventId}")
-  @ResponseStatus(HttpStatus.OK)
+  @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public EventGetDTO updateEvent(
         @PathVariable Long tripId,
@@ -57,4 +57,15 @@ public class EventController {
           User requestingUser = userService.validateToken(token);
           return eventService.updateEvent(tripId, eventId, eventPutDTO, requestingUser);
   }
+
+  @DeleteMapping("/{tripId}/events/{eventId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)  //204
+  public void deleteEvent(
+        @PathVariable Long tripId,
+        @PathVariable Long eventId,
+        @RequestHeader("Authorization") String token) {
+          User requestingUser = userService.validateToken(token);
+          eventService.deleteEvent(tripId, eventId, requestingUser);
+  }
+
 }
