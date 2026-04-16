@@ -12,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 
 
 /**
@@ -69,6 +70,17 @@ public interface DTOMapper {
 	@Mapping(source = "location.longitude", target = "lng")
 	@Mapping(source = "creator",         target = "createdBy", qualifiedByName = "mapUserToUsername")
 	EventGetDTO convertEntityToEventGetDTO(Event event);
+
+	@Mapping(source = "eventTitle", target = "eventTitle")
+	@Mapping(source = "dayDate",    target = "date")
+	@Mapping(source = "time",       target = "time")
+	@Mapping(source = "notes",      target = "notes")
+	@Mapping(target = "location",   ignore = true)
+	@Mapping(target = "creator",    ignore = true)
+	@Mapping(target = "trip",       ignore = true)
+	@Mapping(target = "createdAt",  ignore = true)
+	@Mapping(target = "eventId",    ignore = true)
+	Event convertEventPostDTOtoEntity(EventPostDTO eventPostDTO);
 
 	@Named("mapUserToUsername")
 	default String mapUserToUsername(User user) {

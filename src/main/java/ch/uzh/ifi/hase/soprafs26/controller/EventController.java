@@ -7,6 +7,8 @@ import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
 import ch.uzh.ifi.hase.soprafs26.service.EventService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 
 import java.util.List;
 
@@ -30,5 +32,17 @@ public class EventController {
 
     User requestingUser = userService.validateToken(token);
     return eventService.getEventsGroupedByDay(tripId, requestingUser);
+  }
+
+  @PostMapping("/{tripId}/events")
+  @ResponseStatus(HttpStatus.CREATED)
+  @ResponseBody
+  public EventGetDTO createEvent(
+          @PathVariable Long tripId,
+          @RequestHeader("Authorization") String token,
+          @RequestBody EventPostDTO eventPostDTO) {
+
+      User requestingUser = userService.validateToken(token);
+      return eventService.createEvent(tripId, eventPostDTO, requestingUser);
   }
 }
