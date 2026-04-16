@@ -5,10 +5,9 @@ import java.time.LocalTime;
 
 public class EventPostDTO {
   private String eventTitle;
-  private LocalDate dayDate;
+  private LocalDate date;
   private LocalTime time;
   private String notes;
-
   private String placeId;
   private String placeName;
   private Double lat;
@@ -17,8 +16,8 @@ public class EventPostDTO {
   public String getEventTitle() { return eventTitle; }
   public void setEventTitle(String eventTitle) { this.eventTitle = eventTitle; }
 
-  public LocalDate getDayDate() { return dayDate; }
-  public void setDayDate(LocalDate dayDate) { this.dayDate = dayDate; }
+  public LocalDate getDate() { return date; }
+  public void setDate(LocalDate date) { this.date = date; }
 
   public LocalTime getTime() { return time; }
   public void setTime(LocalTime time) { this.time = time; }
