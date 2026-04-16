@@ -82,6 +82,25 @@ public class EventService {
   }
 
   public EventGetDTO createEvent(Long tripId, EventPostDTO dto, User creator) {
+    if (dto.getEventTitle() == null || dto.getEventTitle().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventTitle is required.");
+    }
+    if (dto.getDayDate() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "day_date is required.");
+    }
+    if (dto.getPlaceId() == null || dto.getPlaceId().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_id is required.");
+    }
+    if (dto.getPlaceName() == null || dto.getPlaceName().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_name is required.");
+    }
+    if (dto.getLat() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lat is required.");
+    }
+    if (dto.getLng() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
+    }
+    
     Trip trip = tripRepository.findById(tripId)
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
         "Trip not found."));
