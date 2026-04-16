@@ -44,9 +44,9 @@ public class EventService {
   public List<DayDTO> getEventsGroupedByDay(Long tripId, User requestingUser) {
   
     Trip trip = findTripOrThrow(tripId); //404 if not found
-    /**Trip trip = tripRepository.findById(tripId)
+    /*Trip trip = tripRepository.findById(tripId)
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "Trip not found."));**/
+        "Trip not found."));*/
         
     // Membership check    
     boolean isMember = membershipRepository
@@ -88,7 +88,7 @@ public class EventService {
   public EventGetDTO createEvent(Long tripId, EventPostDTO dto, User creator) {
     
     validateEventPostDTO(dto, null);
-    /**
+    /*
     if (dto.getEventTitle() == null || dto.getEventTitle().isBlank()) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventTitle is required.");
     }
@@ -107,24 +107,24 @@ public class EventService {
     if (dto.getLng() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
     }
-    **/
-    /**
+    */
+    /*
     if (dto.getDate().isBefore(trip.getStartDate()) || dto.getDate().isAfter(trip.getEndDate())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
         "Event date is outside the trip's date range.");
-    }**/
+    }*/
 
     Trip trip = findTripOrThrow(tripId);
-    /**Trip trip = tripRepository.findById(tripId)
+    /*Trip trip = tripRepository.findById(tripId)
       .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "Trip not found."));**/
+        "Trip not found."));*/
     
     validateTripMember(tripId, creator);
-    /**boolean isMember = membershipRepository.existsByTripIdAndUserId(tripId, creator.getUserId());
+    /*oolean isMember = membershipRepository.existsByTripIdAndUserId(tripId, creator.getUserId());
     if (!isMember) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN,
         "You are not a member of this trip.");
-    }**/
+    }*/
 
     Event event = DTOMapper.INSTANCE.convertEventPostDTOtoEntity(dto);
 
