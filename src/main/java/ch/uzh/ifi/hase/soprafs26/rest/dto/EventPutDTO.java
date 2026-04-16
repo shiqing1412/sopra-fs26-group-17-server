@@ -5,6 +5,7 @@ import java.time.LocalTime;
 
 public class EventPutDTO {
     
+    private Long eventId;
     private String eventTitle;
     private LocalDate date;
     private LocalTime time;
@@ -12,6 +13,9 @@ public class EventPutDTO {
     private String placeName;
     private Double lat;
     private Double lng;
+    
+    public Long getEventId() { return eventId; }
+    public void setEventId(Long eventId) { this.eventId = eventId; }
     
     public String getEventTitle() { return eventTitle; }
     public void setEventTitle(String eventTitle) { this.eventTitle = eventTitle; }

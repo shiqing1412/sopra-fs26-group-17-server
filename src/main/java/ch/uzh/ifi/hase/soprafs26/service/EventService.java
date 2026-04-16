@@ -14,7 +14,10 @@ import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs26.entity.Location;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 
+import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,5 +79,57 @@ public class EventService {
     }
 
     return days;
+  }
+
+  public EventGetDTO createEvent(Long tripId, EventPostDTO dto, User creator) {
+    if (dto.getEventTitle() == null || dto.getEventTitle().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventTitle is required.");
+    }
+    if (dto.getDayDate() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "day_date is required.");
+    }
+    if (dto.getPlaceId() == null || dto.getPlaceId().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_id is required.");
+    }
+    if (dto.getPlaceName() == null || dto.getPlaceName().isBlank()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_name is required.");
+    }
+    if (dto.getLat() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lat is required.");
+    }
+    if (dto.getLng() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
+    }
+    
+    Trip trip = tripRepository.findById(tripId)
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+        "Trip not found."));
+
+    boolean isMember = membershipRepository.existsByTripIdAndUserId(tripId, creator.getUserId());
+    if (!isMember) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+        "You are not a member of this trip.");
+    }
+
+    if (dto.getDayDate().isBefore(trip.getStartDate()) || dto.getDayDate().isAfter(trip.getEndDate())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "Event date is outside the trip's date range.");
+    }
+
+    Event event = DTOMapper.INSTANCE.convertEventPostDTOtoEntity(dto);
+
+    Location location = new Location();
+    location.setPlaceId(dto.getPlaceId());
+    location.setName(dto.getPlaceName());
+    location.setLatitude(dto.getLat());
+    location.setLongitude(dto.getLng());
+
+    event.setLocation(location);
+    event.setCreator(creator);
+    event.setTrip(trip);
+    event.setCreatedAt(LocalDateTime.now());
+
+    Event saved = eventRepository.save(event);
+    return DTOMapper.INSTANCE.convertEntityToEventGetDTO(saved);
   }
 }
