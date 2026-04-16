@@ -61,6 +61,7 @@ sonar {
         property "sonar.projectKey", "shiqing1412_sopra-fs26-group-17-server"
         property "sonar.organization", "shiqing1412"
         property "sonar.host.url", "https://sonarcloud.io"
+        property "sonar.coverage.jacoco.xmlReportPaths", "build/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
 

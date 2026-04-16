@@ -27,8 +27,7 @@ jobs:
         run: chmod +x gradlew
       
       - name: Test and analyze
-        #run: ./gradlew test jacocoTestReport sonar  (Turned off sonar for now)
-        run: ./gradlew test jacocoTestReport
+        run: ./gradlew test jacocoTestReport sonar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
