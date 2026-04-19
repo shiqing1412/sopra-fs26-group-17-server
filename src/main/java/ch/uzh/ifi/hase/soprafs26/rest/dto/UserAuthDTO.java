@@ -1,9 +1,12 @@
 package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
+
 public class UserAuthDTO {
     private Long userId;
     private String username;
     private String token;
+    private UserStatus status;
 
 
     public Long getUserId() { return userId; }  
@@ -15,5 +18,6 @@ public class UserAuthDTO {
     public String getToken() { return token; }
     public void setToken(String token) { this.token = token; }
 
-    
+    public UserStatus getStatus() { return status; }
+    public void setStatus(UserStatus status) { this.status = status; }
 }
