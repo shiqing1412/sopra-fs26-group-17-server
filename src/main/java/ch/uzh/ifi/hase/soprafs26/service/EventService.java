@@ -141,6 +141,7 @@ public class EventService {
 
     Event saved = eventRepository.save(event);
     return DTOMapper.INSTANCE.convertEntityToEventGetDTO(saved);
+    
   }
 
 
@@ -240,7 +241,9 @@ private void validateEventPostDTO(EventPostDTO dto, Trip trip) {
   if (dto.getLng() == null) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
   }
-  validateEventDateWithinTrip(dto.getDate(), trip);
+  if (trip != null) {
+    validateEventDateWithinTrip(dto.getDate(), trip);
+  }
 }
 
 private void validateEventPutDTO(EventPutDTO dto, Trip trip) {
