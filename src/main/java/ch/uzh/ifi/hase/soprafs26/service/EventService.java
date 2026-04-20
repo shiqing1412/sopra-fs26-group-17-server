@@ -170,6 +170,20 @@ public class EventService {
     return DTOMapper.INSTANCE.convertEntityToEventGetDTO(updatedEvent);
 }
 
+public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
+  if (requestingUser == null) {
+    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not authenticated.");
+  }
+  
+  findTripOrThrow(tripId); //404 if not found
+  Event event = findEventOrThrow(eventId);//404 if not found
+  validateEventBelongsToTrip(event, tripId);//404 if event not in this trip
+  
+  validateTripMember(tripId, requestingUser);//403 if not member of this trip
+
+  eventRepository.delete(event);
+  eventRepository.flush();
+}
 
 //validation methods
 
