@@ -76,7 +76,7 @@ public interface DTOMapper {
 	@Mapping(source = "date",            target = "date")
 	@Mapping(source = "time",            target = "time")
 	@Mapping(source = "notes",           target = "notes")
-	@Mapping(source = "location.locationId", target = "placeId")
+	@Mapping(source = "location.placeId", target = "placeId")
 	@Mapping(source = "location.name",   target = "placeName")
 	@Mapping(source = "location.lat",  target = "lat")
 	@Mapping(source = "location.lng", target = "lng")
