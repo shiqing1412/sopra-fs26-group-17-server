@@ -9,6 +9,7 @@ public class EventGetDTO {
   private LocalDate date;
   private LocalTime time;
   private String notes;
+  private String placeId;
   private String placeName;
   private Double lat;
   private Double lng;
@@ -25,6 +26,9 @@ public class EventGetDTO {
 
   public LocalTime getTime() { return time; }
   public void setTime(LocalTime time) { this.time = time; }
+
+  public String getPlaceId() { return placeId; }
+  public void setPlaceId(String placeId) { this.placeId = placeId; }
 
   public String getNotes() { return notes; }
   public void setNotes(String notes) { this.notes = notes; }
