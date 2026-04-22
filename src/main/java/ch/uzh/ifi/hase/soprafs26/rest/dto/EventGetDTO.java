@@ -27,14 +27,11 @@ public class EventGetDTO {
   public LocalTime getTime() { return time; }
   public void setTime(LocalTime time) { this.time = time; }
 
-  public String getPlaceId() { return placeId; }
-  public void setPlaceId(String placeId) { this.placeId = placeId; }
-
   public String getNotes() { return notes; }
   public void setNotes(String notes) { this.notes = notes; }
 
-  public Long getPlaceId() { return placeId; }
-  public void setPlaceId(Long placeId) { this.placeId = placeId; }
+  public String getPlaceId() { return placeId; }
+  public void setPlaceId(String placeId) { this.placeId = placeId; }
 
   public String getPlaceName() { return placeName; }
   public void setPlaceName(String placeName) { this.placeName = placeName; }
