@@ -49,14 +49,16 @@ public class EventService {
         "Trip not found."));*/
         
     // Membership check    
-    boolean isMember = membershipRepository
-      .existsByTripIdAndUserId(tripId, requestingUser.getUserId());
-    boolean isOwner = trip.getOwner().getUserId().equals(requestingUser.getUserId());
+    // boolean isMember = membershipRepository
+    //   .existsByTripIdAndUserId(tripId, requestingUser.getUserId());
+    // boolean isOwner = trip.getOwner().getUserId().equals(requestingUser.getUserId());
 
-    if (!isMember && !isOwner) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-        "You are not a member of this trip.");
-    }
+    // if (!isMember && !isOwner) {
+    //   throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+    //     "You are not a member of this trip.");
+    // }
+
+    validateTripMember(tripId, requestingUser);
 
     //Fetch all events for this trip, already sorted by date asc, time asc
     List<Event> events = eventRepository
