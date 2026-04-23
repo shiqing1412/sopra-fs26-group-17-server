@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
-import java.time.LocalDateTime;
+// import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository("eventRepository")
@@ -12,8 +12,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     List<Event> findByTrip_TripIdOrderByDateAscTimeAsc(Long tripId);
 
-    List<Event> findByTrip_TripIdAndCreatedAtAfter(Long tripId, LocalDateTime since);
+    // List<Event> findByTrip_TripIdAndCreatedAtAfter(Long tripId, LocalDateTime since);
 
-    List<Event> findByTrip_TripIdAndEventId(Long tripId, Long eventId);
+    // List<Event> findByTrip_TripIdAndEventId(Long tripId, Long eventId);
 
 }
