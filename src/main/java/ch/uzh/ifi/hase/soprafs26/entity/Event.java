@@ -31,6 +31,9 @@ public class Event implements Serializable {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(nullable = true)
+    private LocalTime endTime;
+
     @Embedded
     private Location location;
 
@@ -68,4 +71,7 @@ public class Event implements Serializable {
 
     public LocalDateTime getCreatedAt() {return createdAt;}
     public void setCreatedAt(LocalDateTime createdAt) {this.createdAt = createdAt;}
+
+    public LocalTime getEndTime() { return endTime; }
+    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 }

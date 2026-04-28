@@ -14,6 +14,7 @@ public class EventPutDTO {
     private String placeName;
     private Double lat;
     private Double lng;
+    private LocalTime endTime;
     
     public Long getEventId() { return eventId; }
     public void setEventId(Long eventId) { this.eventId = eventId; }
@@ -42,5 +43,6 @@ public class EventPutDTO {
     public Double getLng() { return lng; }
     public void setLng(Double lng) { this.lng = lng; }
 
-
+    public LocalTime getEndTime() { return endTime; }
+    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 }

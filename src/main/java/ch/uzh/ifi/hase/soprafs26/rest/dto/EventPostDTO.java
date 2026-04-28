@@ -12,6 +12,7 @@ public class EventPostDTO {
   private String placeName;
   private Double lat;
   private Double lng;
+  private LocalTime endTime;
 
   public String getEventTitle() { return eventTitle; }
   public void setEventTitle(String eventTitle) { this.eventTitle = eventTitle; }
@@ -36,4 +37,7 @@ public class EventPostDTO {
 
   public Double getLng() { return lng; }
   public void setLng(Double lng) { this.lng = lng; }
+
+  public LocalTime getEndTime() { return endTime; }
+  public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 }

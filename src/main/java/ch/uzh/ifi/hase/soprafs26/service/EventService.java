@@ -160,6 +160,7 @@ public class EventService {
     event.setDate(dto.getDate()); 
     event.setTime(dto.getTime());
     event.setNotes(dto.getNotes());
+    event.setEndTime(dto.getEndTime());
 
     if(event.getLocation() == null) {
       event.setLocation(new Location());
