@@ -199,9 +199,9 @@ private void validateEventPostDTO(EventPostDTO dto, Trip trip) {
   if (dto.getEndTime() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTime is required.");
   }
-  if (trip != null) {
-    validateEventDateWithinTrip(dto.getDate(), trip);
-  }
+  
+  validateEventDateWithinTrip(dto.getDate(), trip);
+  
 }
 
 private void validateEventPutDTO(EventPutDTO dto, Trip trip) {
@@ -225,6 +225,7 @@ private void validateEventPutDTO(EventPutDTO dto, Trip trip) {
   }
   validateEventDateWithinTrip(dto.getDate(), trip);
 }
+
 public boolean hasTimeConflict(Event a, Event b) {
   if (!a.getDate().equals(b.getDate())) return false;
   return a.getTime().isBefore(b.getEndTime()) && b.getTime().isBefore(a.getEndTime());
