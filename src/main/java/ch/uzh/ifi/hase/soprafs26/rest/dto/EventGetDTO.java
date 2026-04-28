@@ -15,6 +15,7 @@ public class EventGetDTO {
   private Double lat;
   private Double lng;
   private String createdBy;
+  private LocalTime endTime;
 
   public Long getEventId() { return eventId; }
   public void setEventId(Long eventId) { this.eventId = eventId; }
@@ -46,6 +47,9 @@ public class EventGetDTO {
   public String getCreatedBy() { return createdBy; }
   public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
 
+  public LocalTime getEndTime() { return endTime; }
+  public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -60,12 +64,13 @@ public class EventGetDTO {
       && Objects.equals(placeName, that.placeName)
       && Objects.equals(lat, that.lat)
       && Objects.equals(lng, that.lng)
-      && Objects.equals(createdBy, that.createdBy);
+      && Objects.equals(createdBy, that.createdBy)
+      && Objects.equals(endTime, that.endTime);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(eventId, eventTitle, date, time, notes,
-                        placeId, placeName, lat, lng, createdBy);
+    return Objects.hash(eventId, eventTitle, date, time, endTime, notes,
+      placeId, placeName, lat, lng, createdBy);
   }
 }

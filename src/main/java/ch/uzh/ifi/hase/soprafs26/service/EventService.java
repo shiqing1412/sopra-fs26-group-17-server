@@ -160,6 +160,7 @@ public class EventService {
     event.setDate(dto.getDate()); 
     event.setTime(dto.getTime());
     event.setNotes(dto.getNotes());
+    event.setEndTime(dto.getEndTime());
 
     if(event.getLocation() == null) {
       event.setLocation(new Location());
@@ -243,6 +244,12 @@ private void validateEventPostDTO(EventPostDTO dto, Trip trip) {
   if (dto.getLng() == null) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
   }
+  if (dto.getTime() == null) {
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "time is required.");
+  }
+  if (dto.getEndTime() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTime is required.");
+  }
   if (trip != null) {
     validateEventDateWithinTrip(dto.getDate(), trip);
   }
@@ -268,6 +275,10 @@ private void validateEventPutDTO(EventPutDTO dto, Trip trip) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
   }
   validateEventDateWithinTrip(dto.getDate(), trip);
+}
+public boolean hasTimeConflict(Event a, Event b) {
+  if (!a.getDate().equals(b.getDate())) return false;
+  return a.getTime().isBefore(b.getEndTime()) && b.getTime().isBefore(a.getEndTime());
 }
 
 }
