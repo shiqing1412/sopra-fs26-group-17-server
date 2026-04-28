@@ -2,6 +2,8 @@ package ch.uzh.ifi.hase.soprafs26.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.WebRequest;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
@@ -25,14 +27,20 @@ public class EventController {
   }
 
   @GetMapping("/{tripId}/events")
-  @ResponseStatus(HttpStatus.OK)
-  @ResponseBody
-  public List<DayDTO> getEventsGroupedByDay(
-        @PathVariable Long tripId,
-        @RequestHeader("Authorization") String token) {
+  public ResponseEntity<List<DayDTO>> getEventsGroupedByDay(
+      @PathVariable Long tripId,
+      @RequestHeader("Authorization") String token,
+      WebRequest webRequest) {
 
     User requestingUser = userService.validateToken(token);
-    return eventService.getEventsGroupedByDay(tripId, requestingUser);
+    List<DayDTO> days = eventService.getEventsGroupedByDay(tripId, requestingUser);
+
+    String eTag = String.valueOf(days.hashCode());
+    if (webRequest.checkNotModified(eTag)) {
+      return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
+    }
+
+    return ResponseEntity.ok(days);
   }
 
   @PostMapping("/{tripId}/events")

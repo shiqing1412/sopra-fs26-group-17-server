@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class EventGetDTO {
   private Long eventId;
@@ -44,4 +45,27 @@ public class EventGetDTO {
 
   public String getCreatedBy() { return createdBy; }
   public void setCreatedBy(String createdBy) { this.createdBy = createdBy; }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof EventGetDTO)) return false;
+    EventGetDTO that = (EventGetDTO) o;
+    return Objects.equals(eventId, that.eventId)
+      && Objects.equals(eventTitle, that.eventTitle)
+      && Objects.equals(date, that.date)
+      && Objects.equals(time, that.time)
+      && Objects.equals(notes, that.notes)
+      && Objects.equals(placeId, that.placeId)
+      && Objects.equals(placeName, that.placeName)
+      && Objects.equals(lat, that.lat)
+      && Objects.equals(lng, that.lng)
+      && Objects.equals(createdBy, that.createdBy);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(eventId, eventTitle, date, time, notes,
+                        placeId, placeName, lat, lng, createdBy);
+  }
 }
