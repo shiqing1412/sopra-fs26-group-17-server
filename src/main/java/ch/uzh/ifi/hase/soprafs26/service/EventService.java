@@ -15,9 +15,11 @@ import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPutDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ItineraryPollingResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs26.entity.Location;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
@@ -42,7 +44,7 @@ public class EventService {
     this.membershipRepository = membershipRepository;
   }
 
-  public List<DayDTO> getEventsGroupedByDay(Long tripId, User requestingUser) {
+  public ItineraryPollingResponseDTO getEventsGroupedByDay(Long tripId, User requestingUser) {
   
     Trip trip = findTripOrThrow(tripId); //404 if not found
 
@@ -72,7 +74,27 @@ public class EventService {
       cursor = cursor.plusDays(1);
     }
 
-    return days;
+    LocalDateTime activeThreshold = LocalDateTime.now().minusSeconds(30);
+
+    List<TripMemberDTO> members = membershipRepository.findByTrip(trip).stream()
+      .map(m -> {
+        TripMemberDTO dto = new TripMemberDTO();
+        dto.setUserId(m.getUser().getUserId());
+        dto.setUsername(m.getUser().getUsername());
+        dto.setRole(m.getRole());
+        dto.setStatus(m.getUser().getStatus().toString());
+
+        boolean active = m.getLastSeenAt() != null && m.getLastSeenAt().isAfter(activeThreshold);
+        dto.setActive(active);
+        dto.setCurrentUser(m.getUser().getUserId().equals(requestingUser.getUserId()));
+        return dto;
+      
+      })
+      .toList();
+    
+    return new ItineraryPollingResponseDTO(days, members);
+  
+
   }
 
 

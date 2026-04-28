@@ -5,6 +5,8 @@ public class TripMemberDTO {
     private String username;
     private String role;
     private String status;
+    private Boolean active;
+    private Boolean currentUser;
 
     public Long getUserId() {
         return userId;
@@ -32,6 +34,20 @@ public class TripMemberDTO {
     }
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public Boolean getCurrentUser() {
+        return currentUser;
+    }
+    public void setCurrentUser(Boolean currentUser) {
+        this.currentUser = currentUser;
     }
 
 }

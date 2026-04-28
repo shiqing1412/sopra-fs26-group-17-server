@@ -12,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPutDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ItineraryPollingResponseDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -121,8 +122,8 @@ public class EventServiceTest {
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
       .thenReturn(List.of(event));
 
-    List<DayDTO> days = eventService.getEventsGroupedByDay(10L, member);
-
+    ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(10L, member);
+    List<DayDTO> days = response.getDays();
     // Trip spans 3 days (May 1–3), so we expect 3 DayDTOs
     assertEquals(3, days.size());
     // The event on May 1 should appear in the first day
@@ -139,7 +140,8 @@ public class EventServiceTest {
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
             .thenReturn(List.of());
 
-    List<DayDTO> days = eventService.getEventsGroupedByDay(10L, member);
+    ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(10L, member);
+    List<DayDTO> days = response.getDays();
 
     assertEquals(3, days.size());
     days.forEach(day -> assertEquals(0, day.getEvents().size()));
