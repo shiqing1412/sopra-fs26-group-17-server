@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.entity.Location;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
@@ -11,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPutDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ItineraryPollingResponseDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,8 +48,10 @@ public class EventServiceTest {
   private User stranger;
   private Trip trip;
   private Event event;
+  private Membership membership;
   private EventPostDTO validPostDTO;
   private EventPutDTO validPutDTO;
+
 
   @BeforeEach
   public void setup() {
@@ -83,6 +87,12 @@ public class EventServiceTest {
     event.setCreator(member);
     event.setTrip(trip);
 
+    membership = new Membership();
+    membership.setMembershipId(1L);
+    membership.setUser(member);
+    membership.setTrip(trip);
+    membership.setRole("MEMBER");
+
     validPostDTO = new EventPostDTO();
     validPostDTO.setEventTitle("Visit Tokyo Tower");
     validPostDTO.setDate(LocalDate.of(2026, 5, 1));
@@ -97,6 +107,7 @@ public class EventServiceTest {
     validPutDTO.setEventTitle("Updated Title");
     validPutDTO.setDate(LocalDate.of(2026, 5, 2));
     validPutDTO.setTime(LocalTime.of(14, 0));
+    validPutDTO.setEndTime(LocalTime.of(16, 0));
     validPutDTO.setPlaceId("place-002");
     validPutDTO.setPlaceName("Shibuya");
     validPutDTO.setLat(35.6595);
@@ -107,12 +118,12 @@ public class EventServiceTest {
   @Test
   public void getEventsGroupedByDay_memberAccess_returnsAllDays() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 1L)).thenReturn(true);
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
       .thenReturn(List.of(event));
 
-    List<DayDTO> days = eventService.getEventsGroupedByDay(10L, member);
-
+    ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(10L, member);
+    List<DayDTO> days = response.getDays();
     // Trip spans 3 days (May 1–3), so we expect 3 DayDTOs
     assertEquals(3, days.size());
     // The event on May 1 should appear in the first day
@@ -125,11 +136,12 @@ public class EventServiceTest {
   @Test
   public void getEventsGroupedByDay_noEvents_returnsEmptyDaysForRange() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 1L)).thenReturn(true);
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
             .thenReturn(List.of());
 
-    List<DayDTO> days = eventService.getEventsGroupedByDay(10L, member);
+    ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(10L, member);
+    List<DayDTO> days = response.getDays();
 
     assertEquals(3, days.size());
     days.forEach(day -> assertEquals(0, day.getEvents().size()));
@@ -147,7 +159,7 @@ public class EventServiceTest {
   @Test
   public void getEventsGroupedByDay_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 99L)).thenReturn(false);
+    when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
 
     // stranger is not owner (owner is member with id=1), not in membership
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
@@ -160,7 +172,7 @@ public class EventServiceTest {
   @Test
   public void createEvent_validInput_returnsEventGetDTO() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 1L)).thenReturn(true);
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.save(any(Event.class))).thenReturn(event);
 
     EventGetDTO result = eventService.createEvent(10L, validPostDTO, member);
@@ -181,7 +193,7 @@ public class EventServiceTest {
   @Test
   public void createEvent_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 99L)).thenReturn(false);
+    when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, stranger));
@@ -192,6 +204,9 @@ public class EventServiceTest {
   public void createEvent_missingTitle_throws400() {
     validPostDTO.setEventTitle(null);
 
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, member));
     assertEquals(400, ex.getStatusCode().value());
@@ -201,6 +216,10 @@ public class EventServiceTest {
   public void createEvent_missingDate_throws400() {
     validPostDTO.setDate(null);
 
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
+
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, member));
     assertEquals(400, ex.getStatusCode().value());
@@ -209,6 +228,10 @@ public class EventServiceTest {
   @Test
   public void createEvent_missingPlaceId_throws400() {
     validPostDTO.setPlaceId(null);
+    
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, member));
@@ -219,6 +242,10 @@ public class EventServiceTest {
   public void createEvent_missingPlaceName_throws400() {
     validPostDTO.setPlaceName(null);
 
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
+
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, member));
     assertEquals(400, ex.getStatusCode().value());
@@ -228,6 +255,9 @@ public class EventServiceTest {
   public void createEvent_missingLat_throws400() {
     validPostDTO.setLat(null);
 
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, member));
     assertEquals(400, ex.getStatusCode().value());
@@ -236,7 +266,34 @@ public class EventServiceTest {
   @Test
   public void createEvent_missingLng_throws400() {
     validPostDTO.setLng(null);
+    
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
 
+
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+            () -> eventService.createEvent(10L, validPostDTO, member));
+    assertEquals(400, ex.getStatusCode().value());
+  }
+
+  @Test
+  public void createEvent_missingTime_throws400() {
+    validPostDTO.setTime(null);
+
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+            () -> eventService.createEvent(10L, validPostDTO, member));
+    assertEquals(400, ex.getStatusCode().value());
+  }
+
+  @Test
+  public void createEvent_missingEndTime_throws400() {
+    validPostDTO.setEndTime(null);
+
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, member));
     assertEquals(400, ex.getStatusCode().value());
@@ -249,7 +306,7 @@ public class EventServiceTest {
   public void updateEvent_validInput_returnsUpdatedDTO() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 1L)).thenReturn(true);
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.save(any(Event.class))).thenReturn(event);
 
     EventGetDTO result = eventService.updateEvent(10L, 100L, validPutDTO, member);
@@ -295,7 +352,7 @@ public class EventServiceTest {
   public void updateEvent_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 99L)).thenReturn(false);
+    when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.updateEvent(10L, 100L, validPutDTO, stranger));
@@ -307,7 +364,7 @@ public class EventServiceTest {
     validPutDTO.setEventTitle(null);
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 1L)).thenReturn(true);
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.updateEvent(10L, 100L, validPutDTO, member));
@@ -319,7 +376,7 @@ public class EventServiceTest {
     validPutDTO.setDate(LocalDate.of(2030, 1, 1)); // far outside trip range
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 1L)).thenReturn(true);
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.updateEvent(10L, 100L, validPutDTO, member));
@@ -327,13 +384,12 @@ public class EventServiceTest {
   }
 
   // deleteEvent 
-  //
 
   @Test
   public void deleteEvent_validInput_deletesSuccessfully() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 1L)).thenReturn(true);
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
 
     eventService.deleteEvent(10L, 100L, member);
 
@@ -363,35 +419,11 @@ public class EventServiceTest {
   public void deleteEvent_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
-    when(membershipRepository.existsByTripIdAndUserId(10L, 99L)).thenReturn(false);
+    when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.deleteEvent(10L, 100L, stranger));
     assertEquals(403, ex.getStatusCode().value());
   }
 
-  @Test
-  public void deleteEvent_nullUser_throws403() {
-    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-            () -> eventService.deleteEvent(10L, 100L, null));
-    assertEquals(403, ex.getStatusCode().value());
-  }
-
-  @Test
-  public void createEvent_missingTime_throws400() {
-    validPostDTO.setTime(null);
-
-    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-            () -> eventService.createEvent(10L, validPostDTO, member));
-    assertEquals(400, ex.getStatusCode().value());
-  }
-
-  @Test
-  public void createEvent_missingEndTime_throws400() {
-    validPostDTO.setEndTime(null);
-
-    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-            () -> eventService.createEvent(10L, validPostDTO, member));
-    assertEquals(400, ex.getStatusCode().value());
-  }
 }
