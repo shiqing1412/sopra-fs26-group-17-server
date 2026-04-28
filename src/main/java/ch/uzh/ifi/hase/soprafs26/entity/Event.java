@@ -22,7 +22,7 @@ public class Event implements Serializable {
     @Column(nullable = false)
     private LocalDate date;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private LocalTime time;
 
     @Column(nullable = true, length = 1000)
@@ -31,7 +31,7 @@ public class Event implements Serializable {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private LocalTime endTime;
 
     @Embedded

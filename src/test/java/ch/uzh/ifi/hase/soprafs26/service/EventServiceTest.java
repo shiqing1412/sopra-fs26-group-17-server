@@ -77,6 +77,7 @@ public class EventServiceTest {
     event.setEventTitle("Visit Tokyo Tower");
     event.setDate(LocalDate.of(2026, 5, 1));
     event.setTime(LocalTime.of(10, 0));
+    event.setEndTime(LocalTime.of(12, 0));
     event.setNotes("Bring camera");
     event.setLocation(location);
     event.setCreator(member);
@@ -86,6 +87,7 @@ public class EventServiceTest {
     validPostDTO.setEventTitle("Visit Tokyo Tower");
     validPostDTO.setDate(LocalDate.of(2026, 5, 1));
     validPostDTO.setTime(LocalTime.of(10, 0));
+    validPostDTO.setEndTime(LocalTime.of(12, 0));
     validPostDTO.setPlaceId("place-001");
     validPostDTO.setPlaceName("Tokyo Tower");
     validPostDTO.setLat(35.6586);
@@ -373,5 +375,23 @@ public class EventServiceTest {
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.deleteEvent(10L, 100L, null));
     assertEquals(403, ex.getStatusCode().value());
+  }
+
+  @Test
+  public void createEvent_missingTime_throws400() {
+    validPostDTO.setTime(null);
+
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+            () -> eventService.createEvent(10L, validPostDTO, member));
+    assertEquals(400, ex.getStatusCode().value());
+  }
+
+  @Test
+  public void createEvent_missingEndTime_throws400() {
+    validPostDTO.setEndTime(null);
+
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+            () -> eventService.createEvent(10L, validPostDTO, member));
+    assertEquals(400, ex.getStatusCode().value());
   }
 }
