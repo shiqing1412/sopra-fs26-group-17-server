@@ -8,6 +8,7 @@ import org.springframework.web.server.ResponseStatusException;
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
+import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
@@ -44,21 +45,10 @@ public class EventService {
   public List<DayDTO> getEventsGroupedByDay(Long tripId, User requestingUser) {
   
     Trip trip = findTripOrThrow(tripId); //404 if not found
-    /*Trip trip = tripRepository.findById(tripId)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "Trip not found."));*/
-        
-    // Membership check    
-    // boolean isMember = membershipRepository
-    //   .existsByTripIdAndUserId(tripId, requestingUser.getUserId());
-    // boolean isOwner = trip.getOwner().getUserId().equals(requestingUser.getUserId());
 
-    // if (!isMember && !isOwner) {
-    //   throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-    //     "You are not a member of this trip.");
-    // }
-
-    validateTripMember(tripId, requestingUser);
+    Membership membership = validateTripMember(tripId, requestingUser);
+    membership.setLastSeenAt(LocalDateTime.now());
+    membershipRepository.save(membership);
 
     //Fetch all events for this trip, already sorted by date asc, time asc
     List<Event> events = eventRepository
@@ -90,44 +80,8 @@ public class EventService {
   public EventGetDTO createEvent(Long tripId, EventPostDTO dto, User creator) {
     
     validateEventPostDTO(dto, null);
-    /*
-    if (dto.getEventTitle() == null || dto.getEventTitle().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventTitle is required.");
-    }
-    if (dto.getDate() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "date is required.");
-    }
-    if (dto.getPlaceId() == null || dto.getPlaceId().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_id is required.");
-    }
-    if (dto.getPlaceName() == null || dto.getPlaceName().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_name is required.");
-    }
-    if (dto.getLat() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lat is required.");
-    }
-    if (dto.getLng() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
-    }
-    */
-    /*
-    if (dto.getDate().isBefore(trip.getStartDate()) || dto.getDate().isAfter(trip.getEndDate())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-        "Event date is outside the trip's date range.");
-    }*/
-
     Trip trip = findTripOrThrow(tripId);
-    /*Trip trip = tripRepository.findById(tripId)
-      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-        "Trip not found."));*/
-    
     validateTripMember(tripId, creator);
-    /*oolean isMember = membershipRepository.existsByTripIdAndUserId(tripId, creator.getUserId());
-    if (!isMember) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-        "You are not a member of this trip.");
-    }*/
-
     Event event = DTOMapper.INSTANCE.convertEventPostDTOtoEntity(dto);
 
     Location location = new Location();
@@ -202,13 +156,11 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
       HttpStatus.NOT_FOUND, "Event not found.")); //404
     }
 
-  private void validateTripMember(Long tripId, User user) {
-    boolean isMember = membershipRepository.existsByTripIdAndUserId(tripId, user.getUserId());
-    if (!isMember) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-        "You are not a member of this trip.");//403
-      }
-    }
+  private Membership validateTripMember(Long tripId, User user) {
+    return membershipRepository.findByTripIdAndUserId(tripId, user.getUserId())
+      .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+        "You are not a member of this trip.")); //403
+  }
 
   private void validateEventBelongsToTrip(Event event, Long tripId) {
     if (!event.getTrip().getTripId().equals(tripId)) {

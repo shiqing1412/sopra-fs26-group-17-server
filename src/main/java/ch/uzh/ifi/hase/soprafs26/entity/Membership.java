@@ -28,6 +28,8 @@ public class Membership implements Serializable {
     @Column(nullable = false)
     private String role; // "OWNER" or "MEMBER"
     
+    @Column(nullable = true)
+    private LocalDateTime lastSeenAt;
 
     public Long getMembershipId() {
         return membershipId;
@@ -64,5 +66,10 @@ public class Membership implements Serializable {
         this.role = role;
     }   
     
-
+    public LocalDateTime getLastSeenAt() {
+        return lastSeenAt;
+    }
+    public void setLastSeenAt(LocalDateTime lastSeenAt) {
+        this.lastSeenAt = lastSeenAt;
+    }
 }
