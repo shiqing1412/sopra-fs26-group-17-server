@@ -79,9 +79,9 @@ public class EventService {
 
   public EventGetDTO createEvent(Long tripId, EventPostDTO dto, User creator) {
     
-    validateEventPostDTO(dto, null);
     Trip trip = findTripOrThrow(tripId);
     validateTripMember(tripId, creator);
+    validateEventPostDTO(dto, trip);
     Event event = DTOMapper.INSTANCE.convertEventPostDTOtoEntity(dto);
 
     Location location = new Location();
@@ -128,10 +128,7 @@ public class EventService {
 }
 
 public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
-  if (requestingUser == null) {
-    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not authenticated.");
-  }
-  
+    
   findTripOrThrow(tripId); //404 if not found
   Event event = findEventOrThrow(eventId);//404 if not found
   validateEventBelongsToTrip(event, tripId);//404 if event not in this trip
@@ -195,9 +192,7 @@ private void validateEventPostDTO(EventPostDTO dto, Trip trip) {
   if (dto.getLng() == null) {
     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
   }
-  if (trip != null) {
-    validateEventDateWithinTrip(dto.getDate(), trip);
-  }
+  validateEventDateWithinTrip(dto.getDate(), trip);
 }
 
 private void validateEventPutDTO(EventPutDTO dto, Trip trip) {
