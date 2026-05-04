@@ -11,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.entity.EventMember;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 
+
 import java.util.List;
 import java.util.Optional;
 

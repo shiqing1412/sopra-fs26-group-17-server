@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
+import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;  
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
@@ -56,6 +57,10 @@ public class TripServiceTest {
     private TripRepository tripRepository;
     @Mock
     private MembershipRepository membershipRepository;
+    @Mock
+    private EventRepository eventRepository;
+    @Mock
+    private EventService eventService;
     @InjectMocks
     private TripService tripService;
 
