@@ -4,16 +4,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ItineraryPollingResponseDTO;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
-import ch.uzh.ifi.hase.soprafs26.rest.dto.DayDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPutDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 import ch.uzh.ifi.hase.soprafs26.service.EventService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/trips")
@@ -27,20 +26,23 @@ public class EventController {
   }
 
   @GetMapping("/{tripId}/events")
-  public ResponseEntity<List<DayDTO>> getEventsGroupedByDay(
+  public ResponseEntity<ItineraryPollingResponseDTO> getEventsGroupedByDay(
       @PathVariable Long tripId,
       @RequestHeader("Authorization") String token,
       WebRequest webRequest) {
 
     User requestingUser = userService.validateToken(token);
-    List<DayDTO> days = eventService.getEventsGroupedByDay(tripId, requestingUser);
+    ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(tripId, requestingUser);
 
-    String eTag = String.valueOf(days.hashCode());
+    String eTag = String.valueOf(
+      response.getDays().hashCode() + response.getMembers().hashCode()
+    );
+    
     if (webRequest.checkNotModified(eTag)) {
       return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build();
     }
 
-    return ResponseEntity.ok(days);
+    return ResponseEntity.ok(response);
   }
 
   @PostMapping("/{tripId}/events")
