@@ -9,7 +9,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;  
-import ch.uzh.ifi.hase.soprafs26.rest.dto.EventRepository;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.repository.EventRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 
