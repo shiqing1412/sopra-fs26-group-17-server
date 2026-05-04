@@ -10,6 +10,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;  
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,7 +96,7 @@ public class TripServiceTest {
         tripPostDTO.setEndDate(LocalDate.of(2026, 4, 10));
     }
 
-    @Test //getAuthorizedTrip() 200
+    @Test //getAuthorizedTrip() 200, 403, 404
     public void testGetAuthorizedTrip200() {
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
         when(membershipRepository.existsByTripAndUser(trip, owner)).thenReturn(true);
@@ -158,6 +159,8 @@ public class TripServiceTest {
         when(membershipRepository.findByUser(owner)).thenReturn(List.of(membership1, membership2));
         List<Trip> trips = tripService.getTripsForUser(owner);
         assertNotNull(trips);
+        assertEquals("Japan Trip", trips.get(0).getTripTitle());
+        assertEquals("Korea Trip", trips.get(1).getTripTitle());
         assertEquals(2, trips.size());
     }
 
@@ -172,6 +175,8 @@ public class TripServiceTest {
         when(membershipRepository.findByTrip(trip)).thenReturn(List.of(membership1, membership2));
         List<TripMemberDTO> members = tripService.getTripMembers(10L, owner);
         assertNotNull(members);
+        assertEquals("owner", members.get(0).getUsername());
+        assertEquals("member", members.get(1).getUsername());
         assertEquals(2, members.size());
     }
 
@@ -188,7 +193,19 @@ public class TripServiceTest {
         assertThrows(ResponseStatusException.class, () -> tripService.getTripMembers(10L, owner));
     }
 
-    @Test //joinTrip() 200
+    @Test //getTripPreview() 200
+    public void testGetTripPreview200() {
+        when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
+        TripPreviewDTO preview = tripService.getTripPreview("ABC12345");
+        assertNotNull(preview);
+        assertEquals(10L, preview.getTripId());
+        assertEquals("Japan Trip", preview.getTripTitle());
+        assertEquals(LocalDate.of(2026, 4, 1), preview.getStartDate());
+        assertEquals(LocalDate.of(2026, 4, 10), preview.getEndDate());
+        assertNull(preview.getIllustration());
+    }
+
+    @Test //joinTrip() 200 (new member)
     public void testJoinTrip200() {
        when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
        when(membershipRepository.existsByTripAndUser(trip, member)).thenReturn(false);
@@ -198,15 +215,19 @@ public class TripServiceTest {
        assertEquals(10L, response.getTripId());
        assertEquals("Japan Trip", response.getTripTitle());
        assertFalse(response.isAlreadyMember());
+       verify(membershipRepository, times(1)).save(any(Membership.class));
     }
 
-    @Test //joinTrip() 400 already a member
-    public void testJoinTrip400() {
+    @Test //joinTrip()  200 (already a member)
+    public void testJoinTripAlreadyMember200() {
         when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
         when(membershipRepository.existsByTripAndUser(trip, member)).thenReturn(true);
 
         TripJoinResponseDTO response = tripService.joinTrip("ABC12345", member);
 
+        assertNotNull(response);
+        assertEquals(10L, response.getTripId());
+        assertEquals("Japan Trip", response.getTripTitle());
         assertTrue(response.isAlreadyMember());
         verify(membershipRepository, never()).save(any(Membership.class));
     }
@@ -217,7 +238,7 @@ public class TripServiceTest {
         assertThrows(ResponseStatusException.class, () -> tripService.joinTrip("INVALID_CODE", member));
     }
 
-    @Test //checkMembership() 403 if not a member
+    @Test //checkMembership() 403 if not a member or owner
     public void testCheckMembership403() {
         when(membershipRepository.existsByTripAndUser(trip, stranger)).thenReturn(false);
         assertThrows(ResponseStatusException.class, () -> tripService.checkMembership(trip, stranger));
