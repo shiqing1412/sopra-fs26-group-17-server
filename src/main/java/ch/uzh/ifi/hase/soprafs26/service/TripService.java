@@ -111,12 +111,10 @@ public class TripService {
             membershipRepository.save(membership);
         }
 
-        
         TripJoinResponseDTO response = new TripJoinResponseDTO();
         response.setTripId(trip.getTripId());
         response.setTripTitle(trip.getTripTitle());
         response.setAlreadyMember(alreadyMember);
-
         return response;
     }
 

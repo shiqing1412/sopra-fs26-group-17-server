@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.TripGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripDetailDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.service.TripService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
@@ -43,11 +44,18 @@ public class TripController {
 	}
 
 	@PostMapping ("/join/{joinToken}")
-	@ResponseStatus(HttpStatus.OK) // 200 OK
+	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
 	public TripJoinResponseDTO joinTrip(@PathVariable String joinToken, @RequestHeader("Authorization") String token) {
 		User currentUser = userService.validateToken(token);
 		return tripService.joinTrip(joinToken, currentUser);
+	}
+
+	@GetMapping("/join/{joinToken}/preview")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public TripPreviewDTO getTripPreview(@PathVariable String joinToken) {
+		return tripService.getTripPreview(joinToken);
 	}
 
 	@GetMapping("/{tripId}")
