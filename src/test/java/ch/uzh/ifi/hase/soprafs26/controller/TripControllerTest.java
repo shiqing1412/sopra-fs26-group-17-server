@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs26.controller;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 import ch.uzh.ifi.hase.soprafs26.service.TripService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
@@ -20,8 +21,9 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,20 +61,21 @@ public class TripControllerTest {
 
     @Test
     public void joinTripInvalidTokenReturns404() throws Exception {
-        given(userService.validateToken(AUTH_TOKEN)).willReturn(mockUser());
-        given(tripService.joinTrip(eq("badtoken"), any()))
-                .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
-
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        when(tripService.joinTrip(eq("badtoken"), any(User.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+        
         mockMvc.perform(post("/trips/join/badtoken")
                         .header(AUTH_HEADER, AUTH_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
+
     @Test
     public void createTripValidInputReturns201() throws Exception {
-        given(userService.validateToken(AUTH_TOKEN)).willReturn(mockUser());
-        given(tripService.createTrip(any(), any())).willReturn(mockTrip());
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        when(tripService.createTrip(any(), any(User.class))).thenReturn(mockTrip());
 
         String body = "{\"tripTitle\":\"Test Trip\",\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-10\"}";
 
@@ -87,9 +90,9 @@ public class TripControllerTest {
     public void getTripByIdValidIdReturns200() throws Exception {
         User user = mockUser();
         Trip trip = mockTrip();
-        given(userService.validateToken(AUTH_TOKEN)).willReturn(user);
-        given(tripService.getAuthorizedTrip(eq(1L), any())).willReturn(trip);
-        given(tripService.getTripMembers(eq(1L), any())).willReturn(Collections.emptyList());
+        when(userService.validateToken(anyString())).thenReturn(user);
+        when(tripService.getAuthorizedTrip(eq(1L), any(User.class))).thenReturn(trip);
+        when(tripService.getTripMembers(eq(1L), any(User.class))).thenReturn(Collections.emptyList());
 
         mockMvc.perform(get("/trips/1")
                         .header(AUTH_HEADER, AUTH_TOKEN)
@@ -99,9 +102,9 @@ public class TripControllerTest {
 
     @Test
     public void getTripByIdUnauthorizedReturns403() throws Exception {
-        given(userService.validateToken(AUTH_TOKEN)).willReturn(mockUser());
-        given(tripService.getAuthorizedTrip(eq(1L), any()))
-                .willThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        when(tripService.getAuthorizedTrip(eq(1L), any(User.class)))
+                .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN));
 
         mockMvc.perform(get("/trips/1")
                         .header(AUTH_HEADER, AUTH_TOKEN)
@@ -111,8 +114,8 @@ public class TripControllerTest {
 
     @Test
     public void getAllTripsReturns200() throws Exception {
-        given(userService.validateToken(AUTH_TOKEN)).willReturn(mockUser());
-        given(tripService.getTripsForUser(any())).willReturn(List.of(mockTrip()));
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        when(tripService.getTripsForUser(any(User.class))).thenReturn(List.of(mockTrip()));
 
         mockMvc.perform(get("/trips")
                         .header(AUTH_HEADER, AUTH_TOKEN)
@@ -127,12 +130,38 @@ public class TripControllerTest {
         member.setUsername("testuser");
         member.setRole("OWNER");
 
-        given(userService.validateToken(AUTH_TOKEN)).willReturn(mockUser());
-        given(tripService.getTripMembers(eq(1L), any())).willReturn(List.of(member));
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        when(tripService.getTripMembers(eq(1L), any(User.class))).thenReturn(List.of(member));
 
         mockMvc.perform(get("/trips/1/members")
                         .header(AUTH_HEADER, AUTH_TOKEN)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getTripPreviewValidShareCodeReturns200() throws Exception {
+        TripPreviewDTO preview = new TripPreviewDTO();
+        preview.setTripId(1L);
+        preview.setTripTitle("Test Trip");
+        preview.setStartDate(LocalDate.of(2026, 6, 1));
+        preview.setEndDate(LocalDate.of(2026, 6, 10));
+        preview.setIllustration(null);
+
+        when(tripService.getTripPreview("abc12345")).thenReturn(preview);
+    
+        mockMvc.perform(get("/trips/join/abc12345/preview")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void getTripPreviewInvalidShareCodeReturns404() throws Exception {
+        when(tripService.getTripPreview("badcode"))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        mockMvc.perform(get("/trips/join/badcode/preview")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }
