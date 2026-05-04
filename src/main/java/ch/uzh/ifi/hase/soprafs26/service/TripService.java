@@ -23,6 +23,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 
 @Service
 @Transactional
@@ -88,10 +89,24 @@ public class TripService {
         return shareCode;
     }
 
-    public TripJoinResponseDTO joinTrip(String joinToken, User currentUser){
-        Trip trip = tripRepository.findByShareCode(joinToken)
+    private Trip getTripByShareCode(String shareCode) {
+        return tripRepository.findByShareCode(shareCode)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found with the provided share code."));
+    }
 
+    public TripPreviewDTO getTripPreview(String joinToken) {
+        Trip trip = getTripByShareCode(joinToken);
+        TripPreviewDTO preview = new TripPreviewDTO();
+        preview.setTripId(trip.getTripId());
+        preview.setTripTitle(trip.getTripTitle());
+        preview.setStartDate(trip.getStartDate());
+        preview.setEndDate(trip.getEndDate());
+        preview.setIllustration(null);
+        return preview;
+    }
+
+    public TripJoinResponseDTO joinTrip(String joinToken, User currentUser){
+        Trip trip = getTripByShareCode(joinToken);
         boolean alreadyMember = membershipRepository.existsByTripAndUser(trip, currentUser);
 
         if (!alreadyMember) {
@@ -104,12 +119,10 @@ public class TripService {
             autoEnrollNewMemberForExistingEvents(currentUser, trip);
         }
 
-        
         TripJoinResponseDTO response = new TripJoinResponseDTO();
         response.setTripId(trip.getTripId());
         response.setTripTitle(trip.getTripTitle());
         response.setAlreadyMember(alreadyMember);
-
         return response;
     }
 

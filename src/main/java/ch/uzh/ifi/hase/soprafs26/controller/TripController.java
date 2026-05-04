@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.TripGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripDetailDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.service.TripService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
@@ -34,7 +35,9 @@ public class TripController {
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) // 201 CREATED
 	@ResponseBody
-	public TripGetDTO createTrip(@RequestBody TripPostDTO tripPostDTO, @RequestHeader("Authorization") String token) {
+	public TripGetDTO createTrip(
+		@RequestBody TripPostDTO tripPostDTO, 
+		@RequestHeader("Authorization") String token) {
 		
 		User currentUser = userService.validateToken(token);
 		Trip createdTrip = tripService.createTrip(tripPostDTO, currentUser);	
@@ -43,17 +46,29 @@ public class TripController {
 	}
 
 	@PostMapping ("/join/{joinToken}")
-	@ResponseStatus(HttpStatus.OK) // 200 OK
+	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public TripJoinResponseDTO joinTrip(@PathVariable String joinToken, @RequestHeader("Authorization") String token) {
+	public TripJoinResponseDTO joinTrip(
+		@PathVariable("joinToken") String joinToken, 
+		@RequestHeader("Authorization") String token) {
 		User currentUser = userService.validateToken(token);
 		return tripService.joinTrip(joinToken, currentUser);
+	}
+
+	@GetMapping("/join/{joinToken}/preview")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public TripPreviewDTO getTripPreview(
+		@PathVariable("joinToken") String joinToken) {
+		return tripService.getTripPreview(joinToken);
 	}
 
 	@GetMapping("/{tripId}")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public TripDetailDTO getTripById(@PathVariable Long tripId, @RequestHeader("Authorization") String token) {
+	public TripDetailDTO getTripById(
+		@PathVariable("tripId") Long tripId, 
+		@RequestHeader("Authorization") String token) {
 		User currentUser = userService.validateToken(token);
 		Trip trip = tripService.getAuthorizedTrip(tripId, currentUser);
 		List<TripMemberDTO> members = tripService.getTripMembers(tripId, currentUser);
@@ -65,7 +80,8 @@ public class TripController {
 	@GetMapping //show all trips of the user
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<TripGetDTO> getAllTrips(@RequestHeader("Authorization") String token) {
+	public List<TripGetDTO> getAllTrips(
+		@RequestHeader("Authorization") String token) {
 		User currentUser = userService.validateToken(token);
 		List<TripGetDTO> tripGetDTOs = new ArrayList<>();
 		for (Trip trip : tripService.getTripsForUser(currentUser)) {
@@ -77,7 +93,9 @@ public class TripController {
 	@GetMapping("/{tripId}/members")
 	@ResponseStatus(HttpStatus.OK)
 	@ResponseBody
-	public List<TripMemberDTO> getTripMembers(@PathVariable Long tripId, @RequestHeader("Authorization") String token) {
+	public List<TripMemberDTO> getTripMembers(
+		@PathVariable("tripId") Long tripId, 
+		@RequestHeader("Authorization") String token) {
 		User currentUser = userService.validateToken(token);
 		return tripService.getTripMembers(tripId, currentUser);
 	}

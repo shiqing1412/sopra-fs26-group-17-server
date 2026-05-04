@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -93,5 +94,20 @@ public class TripServiceIntegrationTest {
                 .filter(m -> "OWNER".equals(m.getRole()))
                 .count();
         assertEquals(1, ownerMemberships);
+    }
+
+    @Test
+    public void getTripPreviewRetursTripDataWithoutCreatingMembership() {
+        TripPreviewDTO preview = tripService.getTripPreview(SHARE_CODE);
+
+        assertNotNull(preview);
+        assertEquals(trip.getTripId(), preview.getTripId());
+        assertEquals("Integration Trip", preview.getTripTitle());
+        assertEquals(LocalDate.of(2026,7,1), preview.getStartDate());
+        assertEquals(LocalDate.of(2026,7,10), preview.getEndDate());
+        assertNull(preview.getIllustration());
+
+        List<?> memberships = membershipRepository.findByTrip(trip);
+        assertEquals(0, memberships.size());
     }
 }
