@@ -10,6 +10,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;  
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
+import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,10 @@ public class TripServiceTest {
     private TripRepository tripRepository;
     @Mock
     private MembershipRepository membershipRepository;
+    @Mock
+    private EventRepository eventRepository;
+    @Mock
+    private EventService eventService;
     @InjectMocks
     private TripService tripService;
 
@@ -188,16 +193,17 @@ public class TripServiceTest {
         assertThrows(ResponseStatusException.class, () -> tripService.getTripMembers(10L, owner));
     }
 
-    @Test //joinTrip() 200
+    @Test
     public void testJoinTrip200() {
-       when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
-       when(membershipRepository.existsByTripAndUser(trip, member)).thenReturn(false);
-       
-       TripJoinResponseDTO response = tripService.joinTrip("ABC12345", member);
-       assertNotNull(response);
-       assertEquals(10L, response.getTripId());
-       assertEquals("Japan Trip", response.getTripTitle());
-       assertFalse(response.isAlreadyMember());
+    when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
+    when(membershipRepository.existsByTripAndUser(trip, member)).thenReturn(false);
+    when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L)).thenReturn(List.of());
+
+    TripJoinResponseDTO response = tripService.joinTrip("ABC12345", member);
+    assertNotNull(response);
+    assertEquals(10L, response.getTripId());
+    assertEquals("Japan Trip", response.getTripTitle());
+    assertFalse(response.isAlreadyMember());
     }
 
     @Test //joinTrip() 400 already a member

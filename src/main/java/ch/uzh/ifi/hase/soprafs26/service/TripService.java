@@ -21,6 +21,8 @@ import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
+import ch.uzh.ifi.hase.soprafs26.entity.Event;
+import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
 
 @Service
 @Transactional
@@ -29,10 +31,15 @@ public class TripService {
     private final Logger log = LoggerFactory.getLogger(TripService.class);
     private final TripRepository tripRepository;
     private final MembershipRepository membershipRepository;
+    private final EventRepository eventRepository;
+    private final EventService eventService;
 
-    public TripService(TripRepository tripRepository, MembershipRepository membershipRepository) {
+    public TripService(TripRepository tripRepository, MembershipRepository membershipRepository, EventRepository eventRepository,
+                   EventService eventService) {
         this.tripRepository = tripRepository;
         this.membershipRepository = membershipRepository;
+        this.eventRepository = eventRepository;
+        this.eventService = eventService;
     }
 
     public Trip createTrip(TripPostDTO tripPostDTO, User owner) {
@@ -94,6 +101,7 @@ public class TripService {
             membership.setRole("MEMBER");
             membership.setJoinedAt(LocalDateTime.now());
             membershipRepository.save(membership);
+            autoEnrollNewMemberForExistingEvents(currentUser, trip);
         }
 
         
@@ -153,6 +161,24 @@ public class TripService {
         Trip trip = getTripById(tripId);
         checkMembership(trip, currentUser);
         return trip;
+    }
+
+
+    private void autoEnrollNewMemberForExistingEvents(User newMember, Trip trip) {
+        List<Event> tripEvents = eventRepository
+            .findByTrip_TripIdOrderByDateAscTimeAsc(trip.getTripId());
+
+        List<Event> enrolledSoFar = new ArrayList<>();
+
+        for (Event event : tripEvents) {
+            boolean hasConflict = enrolledSoFar.stream()
+                .anyMatch(enrolled -> eventService.hasTimeConflict(event, enrolled));
+
+            if (!hasConflict) {
+                eventService.autoEnrollSingleMember(event, newMember);
+                enrolledSoFar.add(event);
+            }
+        }
     }
 
     
