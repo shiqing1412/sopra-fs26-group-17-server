@@ -49,33 +49,56 @@ public class EventController {
   @ResponseStatus(HttpStatus.CREATED)
   @ResponseBody
   public EventGetDTO createEvent(
-        @PathVariable Long tripId,
-        @RequestHeader("Authorization") String token,
-        @RequestBody EventPostDTO eventPostDTO) {
-          User requestingUser = userService.validateToken(token);
-          return eventService.createEvent(tripId, eventPostDTO, requestingUser);
+      @PathVariable Long tripId,
+      @RequestHeader("Authorization") String token,
+      @RequestBody EventPostDTO eventPostDTO) {
+        User requestingUser = userService.validateToken(token);
+        return eventService.createEvent(tripId, eventPostDTO, requestingUser);
   }
 
   @PutMapping("/{tripId}/events/{eventId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ResponseBody
   public EventGetDTO updateEvent(
-        @PathVariable Long tripId,
-        @PathVariable Long eventId,
-        @RequestHeader("Authorization") String token,
-        @RequestBody EventPutDTO eventPutDTO) {
-          User requestingUser = userService.validateToken(token);
-          return eventService.updateEvent(tripId, eventId, eventPutDTO, requestingUser);
+      @PathVariable Long tripId,
+      @PathVariable Long eventId,
+      @RequestHeader("Authorization") String token,
+      @RequestBody EventPutDTO eventPutDTO) {
+        User requestingUser = userService.validateToken(token);
+        return eventService.updateEvent(tripId, eventId, eventPutDTO, requestingUser);
   }
 
   @DeleteMapping("/{tripId}/events/{eventId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)  //204
   public void deleteEvent(
+      @PathVariable Long tripId,
+      @PathVariable Long eventId,
+      @RequestHeader("Authorization") String token) {
+        User requestingUser = userService.validateToken(token);
+        eventService.deleteEvent(tripId, eventId, requestingUser);
+  }
+
+  @PostMapping("/{tripId}/events/{eventId}/join")
+  @ResponseBody
+  public ResponseEntity<EventGetDTO> joinEvent(
         @PathVariable Long tripId,
         @PathVariable Long eventId,
         @RequestHeader("Authorization") String token) {
-          User requestingUser = userService.validateToken(token);
-          eventService.deleteEvent(tripId, eventId, requestingUser);
+    User requestingUser = userService.validateToken(token);
+    EventGetDTO result = eventService.joinEvent(tripId, eventId, requestingUser);
+    return ResponseEntity.ok(result);
+  }
+
+  @DeleteMapping("/{tripId}/events/{eventId}/join")
+  @ResponseBody
+  public ResponseEntity<EventGetDTO> dismissEvent(
+        @PathVariable Long tripId,
+        @PathVariable Long eventId,
+        @RequestHeader("Authorization") String token,
+        @RequestParam(value = "conflict", defaultValue = "false") boolean fromConflictFlow) {
+    User requestingUser = userService.validateToken(token);
+    EventGetDTO result = eventService.dismissEvent(tripId, eventId, requestingUser, fromConflictFlow);
+    return ResponseEntity.ok(result);
   }
 
 }
