@@ -61,7 +61,7 @@ public class GlobalExceptionAdvice {
 		log.error("Transaction system error:", ex);
 		return ResponseEntity
 				.status(HttpStatus.CONFLICT)
-				.body(Map.of("message", "Transaction failed due to a conflict"));
+				.body(Map.of("message", "Transaction failed due to a conflict."));
 	}
 
 
@@ -70,6 +70,6 @@ public class GlobalExceptionAdvice {
 		log.error("Unexpected server error:", ex);
 		return ResponseEntity
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(Map.of("message", "An unexpected servererror occurred"));
+				.body(Map.of("message", "An unexpected server error occurred."));
 	}
 }

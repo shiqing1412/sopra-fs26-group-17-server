@@ -112,6 +112,40 @@ public class UserControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void createUser_invalidUsername_tooShort_throwsBadRequestsWithMessage() throws Exception {
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setUsername("ab");
+        userPostDTO.setPassword("password123");
+        userPostDTO.setPasswordConfirm("password123");
+
+        MockHttpServletRequestBuilder postRequest = post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPostDTO));
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Username must be between 3 and 20 characters.")));
+    }
+
+    @Test
+    public void createUser_invalidUsername_tooLong_throwsBadRequestsWithMessage() throws Exception {
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setUsername("a".repeat(21));
+        userPostDTO.setPassword("password123");
+        userPostDTO.setPasswordConfirm("password123");
+
+        MockHttpServletRequestBuilder postRequest = post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPostDTO));
+
+        mockMvc.perform(postRequest)
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Username must be between 3 and 20 characters.")));
+    
+        Mockito.verify(userService, Mockito.never()).createUser(Mockito.any());
+    }
+
     private String asJsonString(final Object object) {
         try {
             return new ObjectMapper().writeValueAsString(object);
@@ -120,4 +154,5 @@ public class UserControllerTest {
                     String.format("The request body could not be created.%s", e.toString()));
         }
     }
+
 }

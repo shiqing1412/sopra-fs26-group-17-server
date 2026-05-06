@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.hamcrest.Matchers.is;
 
 @WebMvcTest(TripController.class)
 public class TripControllerTest {
@@ -163,5 +165,17 @@ public class TripControllerTest {
         mockMvc.perform(get("/trips/join/badcode/preview")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void createTrip_invalidTripTitle_tooLong_returnsBadRequestWithMessage() throws Exception {
+        String body = "{\"tripTitle\":\"" + "a".repeat(256) + "\",\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-10\"}";
+
+        mockMvc.perform(post("/trips")
+                        .header(AUTH_HEADER, AUTH_TOKEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Trip title must be at most 255 characters.")));
     }
 }

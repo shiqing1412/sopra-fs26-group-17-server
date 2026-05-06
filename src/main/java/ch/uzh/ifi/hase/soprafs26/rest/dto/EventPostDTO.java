@@ -10,7 +10,7 @@ import jakarta.validation.constraints.Size;
 public class EventPostDTO {
 
   @NotBlank(message = "Event title is required")
-  @Size(max = 255, message = "Event title must be at most 255 characters")
+  @Size(max = 255, message = "Event title must be at most 255 characters.")
   private String eventTitle;
 
   @NotNull(message = "Event date is required")
@@ -21,15 +21,15 @@ public class EventPostDTO {
   @NotNull(message = "Event end time is required")
   private LocalTime endTime;
   
-  @Size(max = 2000, message = "Notes must be at most 2000 characters")
+  @Size(max = 2000, message = "Notes must be at most 2000 characters.")
   private String notes;
 
   @NotBlank(message = "Place ID is required")
-  @Size(max = 255, message = "Place ID must be at most 255 characters")
+  @Size(max = 255, message = "Place ID must be at most 255 characters.")
   private String placeId;
 
   @NotBlank(message = "Place name is required")
-  @Size(max = 255, message = "Place name must be at most 255 characters")
+  @Size(max = 255, message = "Place name must be at most 255 characters.")
   private String placeName;
 
   @NotNull(message = "Latitude is required")
