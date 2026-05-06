@@ -299,6 +299,20 @@ public class EventServiceTest {
     assertEquals(400, ex.getStatusCode().value());
   }
 
+@Test
+public void createEvent_endTimeBeforeStartTime_throws400() {
+    validPostDTO.setTime(LocalTime.of(12, 0));
+    validPostDTO.setEndTime(LocalTime.of(11, 0));
+
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+            () -> eventService.createEvent(10L, validPostDTO, member));
+    assertEquals(400, ex.getStatusCode().value());
+    assertEquals("Event end time must be after start time.", ex.getReason());
+    verify(eventRepository, times(0)).save(any(Event.class));
+  }
 
   //updateEvent
 
@@ -381,6 +395,21 @@ public class EventServiceTest {
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.updateEvent(10L, 100L, validPutDTO, member));
     assertEquals(400, ex.getStatusCode().value());
+  }
+
+  @Test
+  public void updateEvent_endTimeBeforeStartTime_throws400() {
+    validPutDTO.setTime(LocalTime.of(12, 0));
+    validPutDTO.setEndTime(LocalTime.of(11, 0));
+
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+            () -> eventService.updateEvent(10L, 100L, validPutDTO, member));
+    assertEquals(400, ex.getStatusCode().value());
+    assertEquals("Event end time must be after start time.", ex.getReason());
   }
 
   // deleteEvent 
