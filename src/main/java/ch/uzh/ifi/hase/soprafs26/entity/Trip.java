@@ -16,7 +16,7 @@ public class Trip implements Serializable {
     @GeneratedValue
     private Long tripId;
     
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String tripTitle;
 
     @Column(nullable = false)
@@ -25,7 +25,7 @@ public class Trip implements Serializable {
     @Column(nullable = false)
     private LocalDate endDate;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, unique = true, length = 8)  //shareCode .substring(0, 8)
     private String shareCode;
 
     @ManyToOne //Many trips can be owned by one user, but each trip has only one owner

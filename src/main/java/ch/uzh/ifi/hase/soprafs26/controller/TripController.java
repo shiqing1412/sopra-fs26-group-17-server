@@ -17,6 +17,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.mapper.DTOMapper;
 
 import java.util.List;
 import java.util.ArrayList;
+import jakarta.validation.Valid;
 
 
 
@@ -36,7 +37,7 @@ public class TripController {
 	@ResponseStatus(HttpStatus.CREATED) // 201 CREATED
 	@ResponseBody
 	public TripGetDTO createTrip(
-		@RequestBody TripPostDTO tripPostDTO, 
+		@Valid @RequestBody TripPostDTO tripPostDTO, 
 		@RequestHeader("Authorization") String token) {
 		
 		User currentUser = userService.validateToken(token);

@@ -16,7 +16,7 @@ public class Event implements Serializable {
     @GeneratedValue
     private Long eventId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String eventTitle;
 
     @Column(nullable = false)
@@ -25,7 +25,7 @@ public class Event implements Serializable {
     @Column(nullable = false)
     private LocalTime time;
 
-    @Column(nullable = true, length = 1000)
+    @Column(nullable = true, length = 2000)
     private String notes;
 
     @Column(nullable = false)

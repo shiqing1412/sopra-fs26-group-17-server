@@ -8,10 +8,10 @@ public class Location implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String placeId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String name;
 
     @Column(nullable = false)
