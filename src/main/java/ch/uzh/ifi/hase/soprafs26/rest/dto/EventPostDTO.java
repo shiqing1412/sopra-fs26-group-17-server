@@ -3,16 +3,41 @@ package ch.uzh.ifi.hase.soprafs26.rest.dto;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 public class EventPostDTO {
+
+  @NotBlank(message = "Event title is required")
+  @Size(max = 255, message = "Event title must be at most 255 characters.")
   private String eventTitle;
+
+  @NotNull(message = "Event date is required")
   private LocalDate date;
+
+  @NotNull(message = "Event time is required")
   private LocalTime time;
-  private String notes;
-  private String placeId;
-  private String placeName;
-  private Double lat;
-  private Double lng;
+  @NotNull(message = "Event end time is required")
   private LocalTime endTime;
+  
+  @Size(max = 2000, message = "Notes must be at most 2000 characters.")
+  private String notes;
+
+  @NotBlank(message = "Place ID is required")
+  @Size(max = 255, message = "Place ID must be at most 255 characters.")
+  private String placeId;
+
+  @NotBlank(message = "Place name is required")
+  @Size(max = 255, message = "Place name must be at most 255 characters.")
+  private String placeName;
+
+  @NotNull(message = "Latitude is required")
+  private Double lat;
+  @NotNull(message = "Longitude is required")
+  private Double lng;
+
+
 
   public String getEventTitle() { return eventTitle; }
   public void setEventTitle(String eventTitle) { this.eventTitle = eventTitle; }
@@ -22,6 +47,9 @@ public class EventPostDTO {
 
   public LocalTime getTime() { return time; }
   public void setTime(LocalTime time) { this.time = time; }
+
+  public LocalTime getEndTime() { return endTime; }
+  public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 
   public String getNotes() { return notes; }
   public void setNotes(String notes) { this.notes = notes; }
@@ -38,6 +66,4 @@ public class EventPostDTO {
   public Double getLng() { return lng; }
   public void setLng(Double lng) { this.lng = lng; }
 
-  public LocalTime getEndTime() { return endTime; }
-  public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 }

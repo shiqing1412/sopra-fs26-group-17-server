@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.context.request.WebRequest;
-import ch.uzh.ifi.hase.soprafs26.rest.dto.ItineraryPollingResponseDTO;
 
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
@@ -12,6 +11,9 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPutDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 import ch.uzh.ifi.hase.soprafs26.service.EventService;
 import ch.uzh.ifi.hase.soprafs26.service.UserService;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.ItineraryPollingResponseDTO;
+
+import jakarta.validation.Valid;
 
 
 @RestController
@@ -51,7 +53,7 @@ public class EventController {
   public EventGetDTO createEvent(
       @PathVariable Long tripId,
       @RequestHeader("Authorization") String token,
-      @RequestBody EventPostDTO eventPostDTO) {
+      @Valid @RequestBody EventPostDTO eventPostDTO) {
         User requestingUser = userService.validateToken(token);
         return eventService.createEvent(tripId, eventPostDTO, requestingUser);
   }
@@ -63,7 +65,7 @@ public class EventController {
       @PathVariable Long tripId,
       @PathVariable Long eventId,
       @RequestHeader("Authorization") String token,
-      @RequestBody EventPutDTO eventPutDTO) {
+      @Valid @RequestBody EventPutDTO eventPutDTO) {
         User requestingUser = userService.validateToken(token);
         return eventService.updateEvent(tripId, eventId, eventPutDTO, requestingUser);
   }

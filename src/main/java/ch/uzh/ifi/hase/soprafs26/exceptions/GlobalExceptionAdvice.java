@@ -2,42 +2,74 @@ package ch.uzh.ifi.hase.soprafs26.exceptions;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.TransactionSystemException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 
-@ControllerAdvice(annotations = RestController.class)
-public class GlobalExceptionAdvice extends ResponseEntityExceptionHandler {
+import java.util.Map;
+
+@RestControllerAdvice
+public class GlobalExceptionAdvice {
 
 	private final Logger log = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
 
-	@ExceptionHandler(value = { IllegalArgumentException.class, IllegalStateException.class })
-	protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
-		String bodyOfResponse = "This should be application specific";
-		return handleExceptionInternal(ex, bodyOfResponse, new HttpHeaders(), HttpStatus.CONFLICT, request);
+	@ExceptionHandler(MethodArgumentNotValidException.class) // Handles validation errors for @Valid annotated request bodies
+	public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex){
+		
+		String message = ex.getBindingResult().getFieldErrors().stream().findFirst()
+				.map(error -> error.getDefaultMessage())
+				.orElse("Validation failed");
+
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(Map.of("message", message));
 	}
 
-	@ExceptionHandler(TransactionSystemException.class)
-	public ResponseStatusException handleTransactionSystemException(Exception ex, HttpServletRequest request) {
-		log.error("Request: {} raised {}", request.getRequestURL(), ex);
-		return new ResponseStatusException(HttpStatus.CONFLICT, ex.getMessage(), ex);
+	@ExceptionHandler(ConstraintViolationException.class) // Handles validation errors for @Validated annotated method parameters
+	public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
+		
+		String message = ex.getConstraintViolations().stream().findFirst()
+				.map(violation -> violation.getMessage())
+				.orElse("Validation failed");
+
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(Map.of("message", message));
 	}
 
-	// Keep this one disable for all testing purposes -> it shows more detail with
-	// this one disabled
-	@ExceptionHandler(HttpServerErrorException.InternalServerError.class)
-	public ResponseStatusException handleException(Exception ex) {
-		log.error("Default Exception Handler -> caught:", ex);
-		return new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), ex);
+	@ExceptionHandler (ResponseStatusException.class) // Handles exceptions with specific HTTP status codes
+	public ResponseEntity<Map<String, String>> handleResponseStatusException(ResponseStatusException ex) {
+		
+		String message = ex.getReason() != null 
+				? ex.getReason() 
+				: "Request failed";
+		
+		return ResponseEntity
+				.status(ex.getStatusCode())
+				.body(Map.of("message", message));
+	}
+
+	@ExceptionHandler(TransactionSystemException.class) // Handles transaction system errors
+	public ResponseEntity<Map<String, String>> handleTransactionSystemException(TransactionSystemException ex) {
+		log.error("Transaction system error:", ex);
+		return ResponseEntity
+				.status(HttpStatus.CONFLICT)
+				.body(Map.of("message", "Transaction failed due to a conflict."));
+	}
+
+
+	@ExceptionHandler(Exception.class) // Catches any unhandled exceptions to prevent server crashes and provide a generic error response
+	public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
+		log.error("Unexpected server error:", ex);
+		return ResponseEntity
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(Map.of("message", "An unexpected server error occurred."));
 	}
 }

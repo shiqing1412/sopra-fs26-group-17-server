@@ -12,7 +12,6 @@ import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.repository.UserRepository;
 
-import at.favre.lib.crypto.bcrypt.BCrypt;
 import java.util.List;
 import java.util.UUID;
 
@@ -104,8 +103,11 @@ public class UserService {
 		if (user.getPassword().length() < 6) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password must be at least 6 characters.");
 		}
+		if (user.getUsername().length() < 3 || user.getUsername().length() > 20) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username must be between 3 and 20 characters.");
+		}
 	}
-
+	
 	public User validateToken(String token) {
 		if (token == null || token.trim().isEmpty()) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing token!"); //401 Unauthorized

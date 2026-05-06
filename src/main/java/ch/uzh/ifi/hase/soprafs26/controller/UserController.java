@@ -13,14 +13,8 @@ import ch.uzh.ifi.hase.soprafs26.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import jakarta.validation.Valid;
 
-/**
- * User Controller
- * This class is responsible for handling all REST request that are related to
- * the user.
- * The controller will receive the request and delegate the execution to the
- * UserService and finally return the result.
- */
 @RestController
 public class UserController {
 
@@ -48,8 +42,8 @@ public class UserController {
 	@PostMapping("/users")
 	@ResponseStatus(HttpStatus.CREATED)
 	@ResponseBody
-	public UserAuthDTO createUser(@RequestBody UserPostDTO userPostDTO) {
-		// 1. Null/blank checks first (service will also do these, but we need
+	public UserAuthDTO createUser(@Valid @RequestBody UserPostDTO userPostDTO) {
+	// 1. Null/blank checks first (service will also do these, but we need
     //    them here before we attempt the .equals() comparison)
 		if (userPostDTO.getPassword() == null || userPostDTO.getPassword().isBlank()) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password is required.");
