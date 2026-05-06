@@ -55,8 +55,8 @@ public class TripControllerTest {
         Trip trip = new Trip();
         trip.setTripId(1L);
         trip.setTripTitle("Test Trip");
-        trip.setStartDate(LocalDate.of(2026, 6, 1));
-        trip.setEndDate(LocalDate.of(2026, 6, 10));
+        trip.setStartDate(LocalDate.of(2027, 6, 1));
+        trip.setEndDate(LocalDate.of(2027, 6, 10));
         trip.setShareCode("abc12345");
         return trip;
     }
@@ -79,7 +79,7 @@ public class TripControllerTest {
         when(userService.validateToken(anyString())).thenReturn(mockUser());
         when(tripService.createTrip(any(), any(User.class))).thenReturn(mockTrip());
 
-        String body = "{\"tripTitle\":\"Test Trip\",\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-10\"}";
+        String body = "{\"tripTitle\":\"Test Trip\",\"startDate\":\"2027-06-01\",\"endDate\":\"2027-06-10\"}";
 
         mockMvc.perform(post("/trips")
                         .header(AUTH_HEADER, AUTH_TOKEN)
@@ -169,7 +169,7 @@ public class TripControllerTest {
 
     @Test
     public void createTrip_invalidTripTitle_tooLong_returnsBadRequestWithMessage() throws Exception {
-        String body = "{\"tripTitle\":\"" + "a".repeat(256) + "\",\"startDate\":\"2026-06-01\",\"endDate\":\"2026-06-10\"}";
+        String body = "{\"tripTitle\":\"" + "a".repeat(256) + "\",\"startDate\":\"2027-06-01\",\"endDate\":\"2027-06-10\"}";
 
         mockMvc.perform(post("/trips")
                         .header(AUTH_HEADER, AUTH_TOKEN)

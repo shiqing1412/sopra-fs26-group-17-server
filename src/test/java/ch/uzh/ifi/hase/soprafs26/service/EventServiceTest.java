@@ -66,8 +66,8 @@ public class EventServiceTest {
     trip = new Trip();
     trip.setTripId(10L);
     trip.setTripTitle("Japan Trip");
-    trip.setStartDate(LocalDate.of(2026, 5, 1));
-    trip.setEndDate(LocalDate.of(2026, 5, 3));
+    trip.setStartDate(LocalDate.of(2027, 5, 1));
+    trip.setEndDate(LocalDate.of(2027, 5, 3));
     trip.setOwner(member);
 
     Location location = new Location();
@@ -79,7 +79,7 @@ public class EventServiceTest {
     event = new Event();
     event.setEventId(100L);
     event.setEventTitle("Visit Tokyo Tower");
-    event.setDate(LocalDate.of(2026, 5, 1));
+    event.setDate(LocalDate.of(2027, 5, 1));
     event.setTime(LocalTime.of(10, 0));
     event.setEndTime(LocalTime.of(12, 0));
     event.setNotes("Bring camera");
@@ -95,7 +95,7 @@ public class EventServiceTest {
 
     validPostDTO = new EventPostDTO();
     validPostDTO.setEventTitle("Visit Tokyo Tower");
-    validPostDTO.setDate(LocalDate.of(2026, 5, 1));
+    validPostDTO.setDate(LocalDate.of(2027, 5, 1));
     validPostDTO.setTime(LocalTime.of(10, 0));
     validPostDTO.setEndTime(LocalTime.of(12, 0));
     validPostDTO.setPlaceId("place-001");
@@ -105,7 +105,7 @@ public class EventServiceTest {
 
     validPutDTO = new EventPutDTO();
     validPutDTO.setEventTitle("Updated Title");
-    validPutDTO.setDate(LocalDate.of(2026, 5, 2));
+    validPutDTO.setDate(LocalDate.of(2027, 5, 2));
     validPutDTO.setTime(LocalTime.of(14, 0));
     validPutDTO.setEndTime(LocalTime.of(16, 0));
     validPutDTO.setPlaceId("place-002");
