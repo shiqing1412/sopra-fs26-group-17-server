@@ -292,4 +292,60 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
     eventMemberRepository.save(em);
   }
 
+  
+  public EventGetDTO joinEvent(Long tripId, Long eventId, User requestingUser) {
+    findTripOrThrow(tripId);
+    Event event = findEventOrThrow(eventId);
+    validateEventBelongsToTrip(event, tripId);
+    validateTripMember(tripId, requestingUser);
+
+    EventMember eventMember = eventMemberRepository
+      .findByEventAndUser(event, requestingUser)
+      .orElseGet(() -> {
+          EventMember em = new EventMember();
+          em.setEvent(event);
+          em.setUser(requestingUser);
+          return em;
+      });
+    eventMember.setParticipationStatus(ParticipationStatus.JOINED);
+    eventMemberRepository.save(eventMember);
+
+    List<EventMember> existingMemberships = eventMemberRepository
+        .findByUserAndTripId(requestingUser, tripId);
+
+    for (EventMember em : existingMemberships) {
+      if (!em.getEvent().getEventId().equals(eventId)
+              && em.getParticipationStatus() == ParticipationStatus.JOINED
+              && hasTimeConflict(event, em.getEvent())) {
+        em.setParticipationStatus(ParticipationStatus.DISMISSED);
+        eventMemberRepository.save(em);
+      }
+    }
+
+    return DTOMapper.INSTANCE.convertEntityToEventGetDTO(event);
+  }
+
+  public EventGetDTO dismissEvent(Long tripId, Long eventId, User requestingUser, boolean fromConflictFlow) {
+    findTripOrThrow(tripId);
+    Event event = findEventOrThrow(eventId);
+    validateEventBelongsToTrip(event, tripId);
+    validateTripMember(tripId, requestingUser);
+
+    EventMember eventMember = eventMemberRepository
+        .findByEventAndUser(event, requestingUser)
+        .orElseGet(() -> {
+            EventMember em = new EventMember();
+            em.setEvent(event);
+            em.setUser(requestingUser);
+            return em;
+        });
+
+    eventMember.setParticipationStatus(
+        fromConflictFlow ? ParticipationStatus.DISMISSED : ParticipationStatus.OPTED_OUT
+    );
+    eventMemberRepository.save(eventMember);
+
+    return DTOMapper.INSTANCE.convertEntityToEventGetDTO(event);
+  }
+
 }
