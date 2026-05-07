@@ -1,5 +1,8 @@
 package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs26.rest.dto.EventMemberDTO;
+
+import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -16,6 +19,10 @@ public class EventGetDTO {
   private Double lng;
   private String createdBy;
   private LocalTime endTime;
+  private Long creatorId;
+  private List<EventMemberDTO> members;
+  private String userStatus;   // "JOINED" | "DISMISSED" | "OPTED_OUT" | "NONE"
+  private boolean hasConflict;
 
   public Long getEventId() { return eventId; }
   public void setEventId(Long eventId) { this.eventId = eventId; }
@@ -50,6 +57,18 @@ public class EventGetDTO {
   public LocalTime getEndTime() { return endTime; }
   public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 
+  public Long getCreatorId() { return creatorId; }
+  public void setCreatorId(Long creatorId) { this.creatorId = creatorId; }
+
+  public List<EventMemberDTO> getMembers() { return members; }
+  public void setMembers(List<EventMemberDTO> members) { this.members = members; }
+
+  public String getUserStatus() { return userStatus; }
+  public void setUserStatus(String userStatus) { this.userStatus = userStatus; }
+
+  public boolean isHasConflict() { return hasConflict; }
+  public void setHasConflict(boolean hasConflict) { this.hasConflict = hasConflict; }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -65,12 +84,16 @@ public class EventGetDTO {
       && Objects.equals(lat, that.lat)
       && Objects.equals(lng, that.lng)
       && Objects.equals(createdBy, that.createdBy)
-      && Objects.equals(endTime, that.endTime);
+      && Objects.equals(endTime, that.endTime)
+      && Objects.equals(creatorId, that.creatorId)
+      && Objects.equals(members, that.members)
+      && Objects.equals(userStatus, that.userStatus)
+      && this.hasConflict == that.hasConflict;  
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(eventId, eventTitle, date, time, endTime, notes,
-      placeId, placeName, lat, lng, createdBy);
+      placeId, placeName, lat, lng, createdBy, creatorId, members, userStatus, hasConflict);
   }
 }

@@ -13,6 +13,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.EventGetDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.EventPutDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.ItineraryPollingResponseDTO;
+import ch.uzh.ifi.hase.soprafs26.repository.EventMemberRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,8 @@ public class EventServiceTest {
   private TripRepository tripRepository;
   @Mock
   private MembershipRepository membershipRepository;
+  @Mock
+private EventMemberRepository eventMemberRepository;
 
   @InjectMocks
   private EventService eventService;
@@ -58,6 +61,7 @@ public class EventServiceTest {
     member = new User();
     member.setUserId(1L);
     member.setUsername("member");
+    member.setStatus(ch.uzh.ifi.hase.soprafs26.constant.UserStatus.ONLINE);
 
     stranger = new User();
     stranger.setUserId(99L);
@@ -114,13 +118,15 @@ public class EventServiceTest {
     validPutDTO.setLng(139.7004);
   }
 
-  //getEventsGroupedByDay
+  //gitpedByDay
   @Test
   public void getEventsGroupedByDay_memberAccess_returnsAllDays() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
-    when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
-      .thenReturn(List.of(event));
+    when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L)).thenReturn(List.of(event));
+    when(membershipRepository.findByTrip(trip)).thenReturn(List.of(membership)); // add this
+    when(eventMemberRepository.findByEvent(any(Event.class))).thenReturn(List.of());
+    when(eventMemberRepository.findByUserAndTripId(any(User.class), any(Long.class))).thenReturn(List.of());
 
     ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(10L, member);
     List<DayDTO> days = response.getDays();
@@ -139,6 +145,7 @@ public class EventServiceTest {
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
             .thenReturn(List.of());
+    when(membershipRepository.findByTrip(trip)).thenReturn(List.of(membership));
 
     ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(10L, member);
     List<DayDTO> days = response.getDays();
