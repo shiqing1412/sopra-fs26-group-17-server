@@ -23,7 +23,10 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 import ch.uzh.ifi.hase.soprafs26.entity.EventMember;
 import ch.uzh.ifi.hase.soprafs26.constant.ParticipationStatus;
 import ch.uzh.ifi.hase.soprafs26.repository.EventMemberRepository;
+import ch.uzh.ifi.hase.soprafs26.rest.dto.EventMemberDTO;
 
+
+import java.util.Optional;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -68,7 +71,7 @@ public class EventService {
       .collect(Collectors.groupingBy(
         Event::getDate,
         Collectors.mapping(
-          DTOMapper.INSTANCE::convertEntityToEventGetDTO,
+          e -> toEventGetDTO(e, requestingUser),
           Collectors.toList()
         )
       ));
@@ -126,7 +129,7 @@ public class EventService {
 
     Event saved = eventRepository.save(event);
     autoEnrollMembersForNewEvent(saved, trip);
-    return DTOMapper.INSTANCE.convertEntityToEventGetDTO(saved);
+    return toEventGetDTO(saved, creator);
   }
 
 
@@ -154,7 +157,7 @@ public class EventService {
     event.getLocation().setLng(dto.getLng());
 
     Event updatedEvent = eventRepository.save(event);
-    return DTOMapper.INSTANCE.convertEntityToEventGetDTO(updatedEvent);
+    return toEventGetDTO(updatedEvent, requestingUser);
 }
 
 public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
@@ -300,6 +303,8 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
     }
   }
 
+
+
   public void autoEnrollSingleMember(Event event, User member) {
     if (eventMemberRepository.findByEventAndUser(event, member).isPresent()) return;
 
@@ -310,7 +315,7 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
     eventMemberRepository.save(em);
   }
 
-  
+   
   public EventGetDTO joinEvent(Long tripId, Long eventId, User requestingUser) {
     findTripOrThrow(tripId);
     Event event = findEventOrThrow(eventId);
@@ -340,7 +345,7 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
       }
     }
 
-    return DTOMapper.INSTANCE.convertEntityToEventGetDTO(event);
+    return toEventGetDTO(event, requestingUser);
   }
 
   public EventGetDTO dismissEvent(Long tripId, Long eventId, User requestingUser, boolean fromConflictFlow) {
@@ -363,7 +368,52 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
     );
     eventMemberRepository.save(eventMember);
 
-    return DTOMapper.INSTANCE.convertEntityToEventGetDTO(event);
+    return toEventGetDTO(event, requestingUser);
   }
+
+
+
+  private EventGetDTO toEventGetDTO(Event event, User callingUser) {
+    EventGetDTO dto = DTOMapper.INSTANCE.convertEntityToEventGetDTO(event);
+
+    List<EventMember> eventMembers = eventMemberRepository.findByEvent(event);
+    List<EventMemberDTO> memberDTOs = eventMembers.stream()
+        .filter(em -> em.getParticipationStatus() == ParticipationStatus.JOINED)
+        .map(em -> {
+            EventMemberDTO memberDTO = new EventMemberDTO();
+            memberDTO.setUserId(em.getUser().getUserId());
+            memberDTO.setUsername(em.getUser().getUsername());
+            return memberDTO;
+        })
+        .collect(Collectors.toList());
+    dto.setMembers(memberDTOs);
+
+    if (callingUser != null) {
+      Optional<EventMember> userMembership = eventMembers.stream()
+          .filter(em -> em.getUser().getUserId().equals(callingUser.getUserId()))
+          .findFirst();
+      dto.setUserStatus(userMembership
+          .map(em -> em.getParticipationStatus().name())
+          .orElse("NONE"));
+
+      List<EventMember> userJoinedElsewhere = eventMemberRepository
+          .findByUserAndTripId(callingUser, event.getTrip().getTripId())
+          .stream()
+          .filter(em -> !em.getEvent().getEventId().equals(event.getEventId())
+                  && em.getParticipationStatus() == ParticipationStatus.JOINED)
+          .collect(Collectors.toList());
+
+      boolean hasConflict = userJoinedElsewhere.stream()
+          .anyMatch(em -> hasTimeConflict(event, em.getEvent()));
+      dto.setHasConflict(hasConflict);
+    } else {
+      dto.setUserStatus("NONE");
+      dto.setHasConflict(false);
+    }
+
+    return dto;
+  }
+
+  
 
 }
