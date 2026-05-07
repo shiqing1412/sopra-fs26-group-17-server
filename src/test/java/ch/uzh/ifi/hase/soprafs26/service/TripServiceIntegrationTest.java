@@ -52,8 +52,8 @@ public class TripServiceIntegrationTest {
 
         trip = new Trip();
         trip.setTripTitle("Integration Trip");
-        trip.setStartDate(LocalDate.of(2026, 7, 1));
-        trip.setEndDate(LocalDate.of(2026, 7, 10));
+        trip.setStartDate(LocalDate.of(2027, 7, 1));
+        trip.setEndDate(LocalDate.of(2027, 7, 10));
         trip.setShareCode(SHARE_CODE);
         trip.setOwner(user);
         tripRepository.save(trip);
@@ -85,8 +85,8 @@ public class TripServiceIntegrationTest {
     public void createTripPersistsOwnerMembership() {
         TripPostDTO dto = new TripPostDTO();
         dto.setTripTitle("New Trip");
-        dto.setStartDate(LocalDate.of(2026, 8, 1));
-        dto.setEndDate(LocalDate.of(2026, 8, 10));
+        dto.setStartDate(LocalDate.of(2027, 8, 1));
+        dto.setEndDate(LocalDate.of(2027, 8, 10));
 
         Trip created = tripService.createTrip(dto, user);
 
@@ -103,8 +103,8 @@ public class TripServiceIntegrationTest {
         assertNotNull(preview);
         assertEquals(trip.getTripId(), preview.getTripId());
         assertEquals("Integration Trip", preview.getTripTitle());
-        assertEquals(LocalDate.of(2026,7,1), preview.getStartDate());
-        assertEquals(LocalDate.of(2026,7,10), preview.getEndDate());
+        assertEquals(LocalDate.of(2027,7,1), preview.getStartDate());
+        assertEquals(LocalDate.of(2027,7,10), preview.getEndDate());
         assertNull(preview.getIllustration());
 
         List<?> memberships = membershipRepository.findByTrip(trip);

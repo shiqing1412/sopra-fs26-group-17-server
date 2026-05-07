@@ -72,10 +72,10 @@ public class TripService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                 "Start date must be before end date."); //400 Bad Request
         }
-        /*if (startDate.isBefore(LocalDate.now())) {
+        if (startDate.isBefore(LocalDate.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, 
                 "Start date must not be in the past."); //400 Bad Request
-        }*/
+        }
     }
 
     private String generateShareCode() {

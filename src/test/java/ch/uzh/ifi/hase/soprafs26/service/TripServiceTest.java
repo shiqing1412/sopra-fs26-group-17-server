@@ -90,15 +90,15 @@ public class TripServiceTest {
         trip = new Trip();
         trip.setTripId(10L);
         trip.setTripTitle("Japan Trip");
-        trip.setStartDate(LocalDate.of(2026, 4, 1));
-        trip.setEndDate(LocalDate.of(2026, 4, 10));
+        trip.setStartDate(LocalDate.of(2027, 7, 1));
+        trip.setEndDate(LocalDate.of(2027, 7, 10));
         trip.setOwner(owner);
         trip.setShareCode("ABC12345");
 
         tripPostDTO = new TripPostDTO();
         tripPostDTO.setTripTitle("Japan Trip");
-        tripPostDTO.setStartDate(LocalDate.of(2026, 4, 1));
-        tripPostDTO.setEndDate(LocalDate.of(2026, 4, 10));
+        tripPostDTO.setStartDate(LocalDate.of(2027, 7, 1));
+        tripPostDTO.setEndDate(LocalDate.of(2027, 7, 10));
     }
 
     @Test //getAuthorizedTrip() 200, 403, 404
@@ -129,7 +129,7 @@ public class TripServiceTest {
 
     @Test //createTrip() 400
     public void testCreateTrip400() {
-        tripPostDTO.setEndDate(LocalDate.of(2026, 3, 30)); // End date before start date
+        tripPostDTO.setEndDate(LocalDate.of(2027, 6, 30)); // End date before start date
         assertThrows(ResponseStatusException.class, () -> tripService.createTrip(tripPostDTO, owner));
     }
 
@@ -205,8 +205,8 @@ public class TripServiceTest {
         assertNotNull(preview);
         assertEquals(10L, preview.getTripId());
         assertEquals("Japan Trip", preview.getTripTitle());
-        assertEquals(LocalDate.of(2026, 4, 1), preview.getStartDate());
-        assertEquals(LocalDate.of(2026, 4, 10), preview.getEndDate());
+        assertEquals(LocalDate.of(2027, 7, 1), preview.getStartDate());
+        assertEquals(LocalDate.of(2027, 7, 10), preview.getEndDate());
         assertNull(preview.getIllustration());
     }
 

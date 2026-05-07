@@ -26,6 +26,7 @@ import ch.uzh.ifi.hase.soprafs26.repository.EventMemberRepository;
 
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -201,6 +202,13 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
         "Event date is outside the trip's date range.");
       }
     }
+    
+  private void validateEventTimeRange(LocalTime time, LocalTime endTime) {
+    if (endTime.isBefore(time)) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "Event end time must be after start time.");
+      }
+  }
 
   private void validateEventPostDTO(EventPostDTO dto, Trip trip) {
     if (dto.getEventTitle() == null || dto.getEventTitle().isBlank()) {
@@ -228,6 +236,7 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTime is required.");
     }
     
+    validateEventTimeRange(dto.getTime(), dto.getEndTime());
     validateEventDateWithinTrip(dto.getDate(), trip);
     
   }
@@ -251,7 +260,16 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
     if (dto.getLng() == null) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
     }
+    if (dto.getTime() == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "time is required.");
+    }
+    if (dto.getEndTime() == null) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTime is required.");  
+    }
+    
+    validateEventTimeRange(dto.getTime(), dto.getEndTime());
     validateEventDateWithinTrip(dto.getDate(), trip);
+    
   }
 
   public boolean hasTimeConflict(Event a, Event b) {
