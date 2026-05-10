@@ -100,5 +100,42 @@ public class TripController {
 		User currentUser = userService.validateToken(token);
 		return tripService.getTripMembers(tripId, currentUser);
 	}
+
+	@DeleteMapping("/{tripId}/members/me")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public java.util.Map<String, String> leaveTrip(
+			@PathVariable("tripId") Long tripId,
+			@RequestHeader("Authorization") String token) {
+
+			User currentUser = userService.validateToken(token);
+			tripService.leaveTrip(tripId, currentUser);
+			return java.util.Map.of("message", "Successfully left the trip.");
+	}	
+
+	@DeleteMapping("/{tripId}")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public java.util.Map<String, String> deleteTrip(
+		@PathVariable("tripId") Long tripId,
+		@RequestHeader("Authorization") String token) {
+
+		User currentUser = userService.validateToken(token);
+		tripService.deleteTrip(tripId, currentUser);
+		return java.util.Map.of("message", "Trip successfully deleted.");
+	}
+
+	@PatchMapping("/{tripId}/members/{userId}/owner")
+	@ResponseStatus(HttpStatus.OK)
+	@ResponseBody
+	public java.util.Map<String, Long> transferOwnership(
+		@PathVariable("tripId") Long tripId,
+		@PathVariable("userId") Long userId,
+		@RequestHeader("Authorization") String token) {
+
+		User currentUser = userService.validateToken(token);
+		Long newOwnerId = tripService.transferOwnership(tripId, userId, currentUser);
+		return java.util.Map.of("new_owner_id", newOwnerId);
+	}
 }
 
