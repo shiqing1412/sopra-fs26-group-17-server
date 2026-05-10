@@ -23,4 +23,8 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     boolean existsByTripAndUser(Trip trip, User user);
     List<Membership> findByTrip(Trip trip);
     List<Membership> findByUser(User user);
+
+    long countByTrip(Trip trip);
+
+    Optional<Membership> findByTripAndUser(Trip trip, User user);
 }

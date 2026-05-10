@@ -192,7 +192,69 @@ public class TripService {
     }
 
     
+    public void leaveTrip(Long tripId, User currentUser) {
+        Trip trip = getTripById(tripId);
+        checkMembership(trip, currentUser);
 
+        boolean isOwner = trip.getOwner().getUserId().equals(currentUser.getUserId());
+
+        if (isOwner) {
+            long memberCount = membershipRepository.countByTrip(trip);
+            if (memberCount > 1) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Trip owner cannot leave while other members remain. Transfer ownership first.");
+            }
+            tripRepository.delete(trip);
+        } else {
+            Membership membership = membershipRepository.findByTripAndUser(trip, currentUser)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "You are not a member of this trip."));
+            membershipRepository.delete(membership);
+        }
+    }
+
+    public void deleteTrip(Long tripId, User currentUser) {
+        Trip trip = getTripById(tripId);
+
+        if (!trip.getOwner().getUserId().equals(currentUser.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Only the trip owner can delete this trip.");
+        }
+
+        tripRepository.delete(trip);
+    }
+
+    public Long transferOwnership(Long tripId, Long newOwnerUserId, User currentUser) {
+        Trip trip = getTripById(tripId);
+
+        if (!trip.getOwner().getUserId().equals(currentUser.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Only the current trip owner can transfer ownership.");
+        }
+
+        if (currentUser.getUserId().equals(newOwnerUserId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "You are already the owner of this trip.");
+        }
+
+        Membership currentOwnerMembership = membershipRepository.findByTripAndUser(trip, currentUser)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Owner membership record not found."));
+        currentOwnerMembership.setRole("MEMBER");
+        membershipRepository.save(currentOwnerMembership);
+
+        Membership newOwnerMembership = membershipRepository
+            .findByTripIdAndUserId(tripId, newOwnerUserId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "Target user is not a member of this trip."));
+        newOwnerMembership.setRole("OWNER");
+        membershipRepository.save(newOwnerMembership);
+
+        trip.setOwner(newOwnerMembership.getUser());
+        tripRepository.save(trip);
+
+        return newOwnerUserId;
+    }
 
 }
 
