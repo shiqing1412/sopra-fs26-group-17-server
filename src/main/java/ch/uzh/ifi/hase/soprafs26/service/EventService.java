@@ -215,28 +215,28 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
 
   private void validateEventPostDTO(EventPostDTO dto, Trip trip) {
     if (dto.getEventTitle() == null || dto.getEventTitle().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventTitle is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event title is required.");
     }
     if (dto.getDate() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "date is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event date is required.");
     }
     if (dto.getPlaceId() == null || dto.getPlaceId().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_id is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getPlaceName() == null || dto.getPlaceName().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_name is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getLat() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lat is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getLng() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getTime() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "time is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please set a valid start time.");
     }
     if (dto.getEndTime() == null) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTime is required.");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please set a valid end time.");
     }
     
     validateEventTimeRange(dto.getTime(), dto.getEndTime());
@@ -246,28 +246,28 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
 
   private void validateEventPutDTO(EventPutDTO dto, Trip trip) {
     if (dto.getEventTitle() == null || dto.getEventTitle().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "eventTitle is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event title is required.");
     }
     if (dto.getDate() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "date is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event date is required.");
     }
     if (dto.getPlaceId() == null || dto.getPlaceId().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_id is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getPlaceName() == null || dto.getPlaceName().isBlank()) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "place_name is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getLat() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lat is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getLng() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lng is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please select a valid location.");
     }
     if (dto.getTime() == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "time is required.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please set a valid start time.");
     }
     if (dto.getEndTime() == null) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "endTime is required.");  
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Please set a valid end time.");  
     }
     
     validateEventTimeRange(dto.getTime(), dto.getEndTime());
