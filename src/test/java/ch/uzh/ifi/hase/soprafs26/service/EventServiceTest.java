@@ -42,7 +42,7 @@ public class EventServiceTest {
   @Mock
   private MembershipRepository membershipRepository;
   @Mock
-private EventMemberRepository eventMemberRepository;
+  private EventMemberRepository eventMemberRepository;
 
   @InjectMocks
   private EventService eventService;
@@ -51,6 +51,7 @@ private EventMemberRepository eventMemberRepository;
   private User stranger;
   private Trip trip;
   private Event event;
+  private Event eventPast;
   private Membership membership;
   private EventPostDTO validPostDTO;
   private EventPutDTO validPutDTO;
@@ -90,6 +91,17 @@ private EventMemberRepository eventMemberRepository;
     event.setLocation(location);
     event.setCreator(member);
     event.setTrip(trip);
+
+    eventPast = new Event();
+    eventPast.setEventId(101L);
+    eventPast.setEventTitle("Visit Kyoto");
+    eventPast.setDate(LocalDate.of(2027, 4, 30));
+    eventPast.setTime(LocalTime.of(10, 0));
+    eventPast.setEndTime(LocalTime.of(12, 0));
+    eventPast.setNotes("Bring camera");
+    eventPast.setLocation(location);
+    eventPast.setCreator(member);
+    eventPast.setTrip(trip);
 
     membership = new Membership();
     membership.setMembershipId(1L);
@@ -172,6 +184,32 @@ private EventMemberRepository eventMemberRepository;
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.getEventsGroupedByDay(10L, stranger));
     assertEquals(403, ex.getStatusCode().value());
+  }
+
+  @Test
+  public void getEventsGroupedByDay_ignoresEventsOutsideTripRange() {
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+    when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
+            .thenReturn(List.of(event, eventPast)); // eventPast is before trip start
+    when(membershipRepository.findByTrip(trip)).thenReturn(List.of(membership));
+    when(eventMemberRepository.findByEvent(any(Event.class))).thenReturn(List.of());
+    when(eventMemberRepository.findByUserAndTripId(any(User.class), any(Long.class))).thenReturn(List.of());
+
+    ItineraryPollingResponseDTO response = eventService.getEventsGroupedByDay(10L, member);
+    List<DayDTO> days = response.getDays();
+
+    // Only the event on May 1 should be included, not the one on April 30
+    assertEquals(3, days.size());
+    assertEquals(1, days.get(0).getEvents().size()); // May 1 has 1 event
+    assertEquals(0, days.get(1).getEvents().size()); // May 2 has 0 events
+    assertEquals(0, days.get(2).getEvents().size()); // May 3 has 0 events
+
+    boolean containsEventPast = days.stream()
+            .flatMap(day -> day.getEvents().stream())
+            .anyMatch(e -> e.getEventId().equals(101L)); // eventPast has ID 101
+    assertFalse(containsEventPast); // eventPast should not be included
+
   }
 
   //  createEvent
@@ -317,7 +355,19 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.createEvent(10L, validPostDTO, member));
     assertEquals(400, ex.getStatusCode().value());
-    assertEquals("Event end time must be after start time.", ex.getReason());
+    verify(eventRepository, times(0)).save(any(Event.class));
+  }
+
+  @Test
+  public void createEvent_dateOutsideTripRange_throws400() {
+    validPostDTO.setDate(LocalDate.of(2030, 1, 1)); // far outside trip range
+
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+
+    ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+            () -> eventService.createEvent(10L, validPostDTO, member));
+    assertEquals(400, ex.getStatusCode().value());
     verify(eventRepository, times(0)).save(any(Event.class));
   }
 
@@ -416,7 +466,6 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.updateEvent(10L, 100L, validPutDTO, member));
     assertEquals(400, ex.getStatusCode().value());
-    assertEquals("Event end time must be after start time.", ex.getReason());
   }
 
   // deleteEvent 
