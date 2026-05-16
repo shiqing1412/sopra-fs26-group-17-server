@@ -18,6 +18,7 @@ import java.util.Map;
 public class GlobalExceptionAdvice {
 
 	private final Logger log = LoggerFactory.getLogger(GlobalExceptionAdvice.class);
+	private static final String MESSAGE_KEY = "message";
 
 	@ExceptionHandler(MethodArgumentNotValidException.class) // Handles validation errors for @Valid annotated request bodies
 	public ResponseEntity<Map<String, String>> handleMethodArgumentNotValid(
@@ -29,7 +30,7 @@ public class GlobalExceptionAdvice {
 
 		return ResponseEntity
 				.status(HttpStatus.BAD_REQUEST)
-				.body(Map.of("message", message));
+				.body(Map.of(MESSAGE_KEY, message));
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class) // Handles validation errors for @Validated annotated method parameters
@@ -41,7 +42,7 @@ public class GlobalExceptionAdvice {
 
 		return ResponseEntity
 				.status(HttpStatus.BAD_REQUEST)
-				.body(Map.of("message", message));
+				.body(Map.of(MESSAGE_KEY, message));
 	}
 
 	@ExceptionHandler (ResponseStatusException.class) // Handles exceptions with specific HTTP status codes
@@ -53,7 +54,7 @@ public class GlobalExceptionAdvice {
 		
 		return ResponseEntity
 				.status(ex.getStatusCode())
-				.body(Map.of("message", message));
+				.body(Map.of(MESSAGE_KEY, message));
 	}
 
 	@ExceptionHandler(TransactionSystemException.class) // Handles transaction system errors
@@ -61,7 +62,7 @@ public class GlobalExceptionAdvice {
 		log.error("Transaction system error:", ex);
 		return ResponseEntity
 				.status(HttpStatus.CONFLICT)
-				.body(Map.of("message", "Transaction failed due to a conflict."));
+				.body(Map.of(MESSAGE_KEY, "Transaction failed due to a conflict."));
 	}
 
 
@@ -70,6 +71,6 @@ public class GlobalExceptionAdvice {
 		log.error("Unexpected server error:", ex);
 		return ResponseEntity
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(Map.of("message", "An unexpected server error occurred."));
+				.body(Map.of(MESSAGE_KEY, "An unexpected server error occurred."));
 	}
 }
