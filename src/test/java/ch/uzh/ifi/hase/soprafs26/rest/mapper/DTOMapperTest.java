@@ -9,10 +9,10 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.UserPostDTO;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DTOMapperTest {
+class DTOMapperTest {
 
     @Test
-    public void testCreateUser_fromUserPostDTO_toUser_success() {
+    void testCreateUser_fromUserPostDTO_toUser_success() {
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("password123");
@@ -24,7 +24,7 @@ public class DTOMapperTest {
     }
 
     @Test
-    public void testGetUser_fromUser_toUserGetDTO_success() {
+    void testGetUser_fromUser_toUserGetDTO_success() {
         User user = new User();
         user.setUsername("testUsername");
         user.setStatus(UserStatus.OFFLINE);

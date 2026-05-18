@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-public class UserControllerTest {
+class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -40,7 +40,7 @@ public class UserControllerTest {
     private UserService userService;
 
     @Test
-    public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+    void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         User user = new User();
         user.setUsername("testUsername");
         user.setStatus(UserStatus.OFFLINE);
@@ -58,7 +58,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_validInput_userCreated() throws Exception {
+    void createUser_validInput_userCreated() throws Exception {
         User user = new User();
         user.setUserId(1L);
         user.setUsername("testUsername");
@@ -84,7 +84,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_passwordMismatch_throwsBadRequest() throws Exception {
+    void createUser_passwordMismatch_throwsBadRequest() throws Exception {
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("password123");
@@ -99,7 +99,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_nullPasswordConfirm_throwsBadRequest() throws Exception {
+    void createUser_nullPasswordConfirm_throwsBadRequest() throws Exception {
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("testUsername");
         userPostDTO.setPassword("password123");
@@ -113,7 +113,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_invalidUsername_tooShort_throwsBadRequestsWithMessage() throws Exception {
+    void createUser_invalidUsername_tooShort_throwsBadRequestsWithMessage() throws Exception {
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("ab");
         userPostDTO.setPassword("password123");
@@ -129,7 +129,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_invalidUsername_tooLong_throwsBadRequestsWithMessage() throws Exception {
+    void createUser_invalidUsername_tooLong_throwsBadRequestsWithMessage() throws Exception {
         UserPostDTO userPostDTO = new UserPostDTO();
         userPostDTO.setUsername("a".repeat(21));
         userPostDTO.setPassword("password123");
