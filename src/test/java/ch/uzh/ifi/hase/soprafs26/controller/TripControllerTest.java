@@ -24,6 +24,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -177,5 +181,110 @@ class TripControllerTest {
                         .content(body))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", is("Trip title must be at most 255 characters.")));
+    }
+
+
+    @Test
+    void deleteTrip_ownerSuccess_returns200() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doNothing().when(tripService).deleteTrip(eq(1L), any(User.class));
+
+        mockMvc.perform(delete("/trips/1").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message", is("Trip successfully deleted.")));
+    }
+
+    @Test
+    void deleteTrip_notOwner_returns403() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the trip owner can delete this trip."))
+                .when(tripService).deleteTrip(eq(1L), any(User.class));
+
+        mockMvc.perform(delete("/trips/1").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deleteTrip_notFound_returns404() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND))
+                .when(tripService).deleteTrip(eq(1L), any(User.class));
+
+        mockMvc.perform(delete("/trips/1").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isNotFound());
+    }
+
+
+    @Test
+    void leaveTrip_memberSuccess_returns200() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doNothing().when(tripService).leaveTrip(eq(1L), any(User.class));
+
+        mockMvc.perform(delete("/trips/1/members/me").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message", is("Successfully left the trip.")));
+    }
+
+    @Test
+    void leaveTrip_ownerWithOtherMembers_returns400() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "Trip owner cannot leave while other members remain. Transfer ownership first."))
+                .when(tripService).leaveTrip(eq(1L), any(User.class));
+
+        mockMvc.perform(delete("/trips/1/members/me").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void leaveTrip_notMember_returns403() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not a member of this trip."))
+                .when(tripService).leaveTrip(eq(1L), any(User.class));
+
+        mockMvc.perform(delete("/trips/1/members/me").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isForbidden());
+    }
+
+
+    @Test
+    void transferOwnership_success_returns200WithNewOwnerId() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        when(tripService.transferOwnership(eq(1L), eq(2L), any(User.class))).thenReturn(2L);
+
+        mockMvc.perform(patch("/trips/1/members/2/owner").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.new_owner_id").value(2L));
+    }
+
+    @Test
+    void transferOwnership_notOwner_returns403() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doThrow(new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Only the current trip owner can transfer ownership."))
+                .when(tripService).transferOwnership(eq(1L), eq(2L), any(User.class));
+
+        mockMvc.perform(patch("/trips/1/members/2/owner").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void transferOwnership_toSelf_returns400() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are already the owner of this trip."))
+                .when(tripService).transferOwnership(eq(1L), eq(1L), any(User.class));
+
+        mockMvc.perform(patch("/trips/1/members/1/owner").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void transferOwnership_targetNotMember_returns404() throws Exception {
+        when(userService.validateToken(anyString())).thenReturn(mockUser());
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Target user is not a member of this trip."))
+                .when(tripService).transferOwnership(eq(1L), eq(99L), any(User.class));
+
+        mockMvc.perform(patch("/trips/1/members/99/owner").header(AUTH_HEADER, AUTH_TOKEN))
+                .andExpect(status().isNotFound());
     }
 }

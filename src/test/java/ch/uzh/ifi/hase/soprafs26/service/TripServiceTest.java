@@ -248,6 +248,146 @@ class TripServiceTest {
         assertThrows(ResponseStatusException.class, () -> tripService.checkMembership(trip, stranger));
     }
 
+
+    @Test
+    void deleteTrip_ownerSuccess_deletesTrip() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+
+        tripService.deleteTrip(10L, owner);
+
+        verify(tripRepository, times(1)).delete(trip);
+    }
+
+    @Test
+    void deleteTrip_notOwner_throws403() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> tripService.deleteTrip(10L, stranger));
+        assertEquals(403, ex.getStatusCode().value());
+        verify(tripRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteTrip_tripNotFound_throws404() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> tripService.deleteTrip(10L, owner));
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
+
+    @Test
+    void leaveTrip_regularMember_removesMembership() {
+        Membership memberMembership = new Membership();
+        memberMembership.setUser(member);
+        memberMembership.setTrip(trip);
+        memberMembership.setRole("MEMBER");
+
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+        when(membershipRepository.existsByTripAndUser(trip, member)).thenReturn(true);
+        when(membershipRepository.findByTripAndUser(trip, member)).thenReturn(Optional.of(memberMembership));
+
+        tripService.leaveTrip(10L, member);
+
+        verify(membershipRepository, times(1)).delete(memberMembership);
+        verify(tripRepository, never()).delete(any());
+    }
+
+    @Test
+    void leaveTrip_ownerAlone_deletesTrip() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+        when(membershipRepository.existsByTripAndUser(trip, owner)).thenReturn(true);
+        when(membershipRepository.countByTrip(trip)).thenReturn(1L);
+
+        tripService.leaveTrip(10L, owner);
+
+        verify(tripRepository, times(1)).delete(trip);
+        verify(membershipRepository, never()).delete(any(Membership.class));
+    }
+
+    @Test
+    void leaveTrip_ownerWithOtherMembers_throws400() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+        when(membershipRepository.existsByTripAndUser(trip, owner)).thenReturn(true);
+        when(membershipRepository.countByTrip(trip)).thenReturn(2L);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> tripService.leaveTrip(10L, owner));
+        assertEquals(400, ex.getStatusCode().value());
+        verify(tripRepository, never()).delete(any());
+    }
+
+    @Test
+    void leaveTrip_notMember_throws403() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+        when(membershipRepository.existsByTripAndUser(trip, stranger)).thenReturn(false);
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> tripService.leaveTrip(10L, stranger));
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+
+    @Test
+    void transferOwnership_success_rolesSwappedAndOwnerUpdated() {
+        Membership ownerMembership = new Membership();
+        ownerMembership.setUser(owner);
+        ownerMembership.setTrip(trip);
+        ownerMembership.setRole("OWNER");
+
+        Membership memberMembership = new Membership();
+        memberMembership.setUser(member);
+        memberMembership.setTrip(trip);
+        memberMembership.setRole("MEMBER");
+
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+        when(membershipRepository.findByTripAndUser(trip, owner)).thenReturn(Optional.of(ownerMembership));
+        when(membershipRepository.findByTripIdAndUserId(10L, 2L)).thenReturn(Optional.of(memberMembership));
+
+        Long result = tripService.transferOwnership(10L, 2L, owner);
+
+        assertEquals(2L, result);
+        assertEquals("MEMBER", ownerMembership.getRole());
+        assertEquals("OWNER", memberMembership.getRole());
+        assertEquals(member, trip.getOwner());
+        verify(tripRepository, times(1)).save(trip);
+    }
+
+    @Test
+    void transferOwnership_notOwner_throws403() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> tripService.transferOwnership(10L, 2L, stranger));
+        assertEquals(403, ex.getStatusCode().value());
+    }
+
+    @Test
+    void transferOwnership_toSelf_throws400() {
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> tripService.transferOwnership(10L, 1L, owner)); // owner.getUserId() == 1L
+        assertEquals(400, ex.getStatusCode().value());
+    }
+
+    @Test
+    void transferOwnership_targetNotMember_throws404() {
+        Membership ownerMembership = new Membership();
+        ownerMembership.setUser(owner);
+        ownerMembership.setRole("OWNER");
+
+        when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+        when(membershipRepository.findByTripAndUser(trip, owner)).thenReturn(Optional.of(ownerMembership));
+        when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
+
+        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+                () -> tripService.transferOwnership(10L, 99L, owner));
+        assertEquals(404, ex.getStatusCode().value());
+    }
+
 }
 
 

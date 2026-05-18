@@ -161,12 +161,13 @@ public class EventService {
 }
 
 public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
-    
-  findTripOrThrow(tripId); //404 if not found
-  Event event = findEventOrThrow(eventId);//404 if not found
-  validateEventBelongsToTrip(event, tripId);//404 if event not in this trip
-  
-  validateTripMember(tripId, requestingUser);//403 if not member of this trip
+  findTripOrThrow(tripId);
+  Event event = findEventOrThrow(eventId);
+  validateEventBelongsToTrip(event, tripId);
+  validateTripMember(tripId, requestingUser);
+
+  List<EventMember> eventMembers = eventMemberRepository.findByEvent(event);
+  eventMemberRepository.deleteAll(eventMembers);
 
   eventRepository.delete(event);
   eventRepository.flush();
