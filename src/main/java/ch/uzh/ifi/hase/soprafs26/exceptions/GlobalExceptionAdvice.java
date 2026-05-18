@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.server.ResponseStatusException;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
 import java.util.Map;
@@ -37,7 +38,7 @@ public class GlobalExceptionAdvice {
 	public ResponseEntity<Map<String, String>> handleConstraintViolation(ConstraintViolationException ex) {
 		
 		String message = ex.getConstraintViolations().stream().findFirst()
-				.map(violation -> violation.getMessage())
+				.map(ConstraintViolation::getMessage)
 				.orElse("Validation failed");
 
 		return ResponseEntity
