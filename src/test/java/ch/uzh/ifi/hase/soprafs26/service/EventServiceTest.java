@@ -33,7 +33,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class EventServiceTest {
+class EventServiceTest {
 
   @Mock
   private EventRepository eventRepository;
@@ -58,7 +58,7 @@ public class EventServiceTest {
 
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     member = new User();
     member.setUserId(1L);
     member.setUsername("member");
@@ -132,7 +132,7 @@ public class EventServiceTest {
 
   //gitpedByDay
   @Test
-  public void getEventsGroupedByDay_memberAccess_returnsAllDays() {
+  void getEventsGroupedByDay_memberAccess_returnsAllDays() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L)).thenReturn(List.of(event));
@@ -152,7 +152,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void getEventsGroupedByDay_noEvents_returnsEmptyDaysForRange() {
+  void getEventsGroupedByDay_noEvents_returnsEmptyDaysForRange() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
@@ -167,7 +167,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void getEventsGroupedByDay_tripNotFound_throws404() {
+  void getEventsGroupedByDay_tripNotFound_throws404() {
     when(tripRepository.findById(10L)).thenReturn(Optional.empty());
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
@@ -176,7 +176,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void getEventsGroupedByDay_notMember_throws403() {
+  void getEventsGroupedByDay_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
 
@@ -187,7 +187,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void getEventsGroupedByDay_ignoresEventsOutsideTripRange() {
+  void getEventsGroupedByDay_ignoresEventsOutsideTripRange() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.findByTrip_TripIdOrderByDateAscTimeAsc(10L))
@@ -215,7 +215,7 @@ public class EventServiceTest {
   //  createEvent
 
   @Test
-  public void createEvent_validInput_returnsEventGetDTO() {
+  void createEvent_validInput_returnsEventGetDTO() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
     when(eventRepository.save(any(Event.class))).thenReturn(event);
@@ -227,7 +227,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_tripNotFound_throws404() {
+  void createEvent_tripNotFound_throws404() {
     when(tripRepository.findById(10L)).thenReturn(Optional.empty());
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
@@ -236,7 +236,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_notMember_throws403() {
+  void createEvent_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
 
@@ -246,7 +246,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingTitle_throws400() {
+  void createEvent_missingTitle_throws400() {
     validPostDTO.setEventTitle(null);
 
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -258,7 +258,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingDate_throws400() {
+  void createEvent_missingDate_throws400() {
     validPostDTO.setDate(null);
 
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -271,7 +271,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingPlaceId_throws400() {
+  void createEvent_missingPlaceId_throws400() {
     validPostDTO.setPlaceId(null);
     
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -284,7 +284,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingPlaceName_throws400() {
+  void createEvent_missingPlaceName_throws400() {
     validPostDTO.setPlaceName(null);
 
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -297,7 +297,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingLat_throws400() {
+  void createEvent_missingLat_throws400() {
     validPostDTO.setLat(null);
 
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -309,7 +309,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingLng_throws400() {
+  void createEvent_missingLng_throws400() {
     validPostDTO.setLng(null);
     
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -322,7 +322,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingTime_throws400() {
+  void createEvent_missingTime_throws400() {
     validPostDTO.setTime(null);
 
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -334,7 +334,7 @@ public class EventServiceTest {
   }
 
   @Test
-  public void createEvent_missingEndTime_throws400() {
+  void createEvent_missingEndTime_throws400() {
     validPostDTO.setEndTime(null);
 
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -345,7 +345,7 @@ public class EventServiceTest {
   }
 
 @Test
-public void createEvent_endTimeBeforeStartTime_throws400() {
+void createEvent_endTimeBeforeStartTime_throws400() {
     validPostDTO.setTime(LocalTime.of(12, 0));
     validPostDTO.setEndTime(LocalTime.of(11, 0));
 
@@ -359,7 +359,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void createEvent_dateOutsideTripRange_throws400() {
+  void createEvent_dateOutsideTripRange_throws400() {
     validPostDTO.setDate(LocalDate.of(2030, 1, 1)); // far outside trip range
 
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
@@ -374,7 +374,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   //updateEvent
 
   @Test
-  public void updateEvent_validInput_returnsUpdatedDTO() {
+  void updateEvent_validInput_returnsUpdatedDTO() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
@@ -387,7 +387,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void updateEvent_tripNotFound_throws404() {
+  void updateEvent_tripNotFound_throws404() {
     when(tripRepository.findById(10L)).thenReturn(Optional.empty());
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
@@ -396,7 +396,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
 }
 
   @Test
-  public void updateEvent_eventNotFound_throws404() {
+  void updateEvent_eventNotFound_throws404() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.empty());
 
@@ -406,7 +406,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void updateEvent_eventBelongsToDifferentTrip_throws404() {
+  void updateEvent_eventBelongsToDifferentTrip_throws404() {
     Trip otherTrip = new Trip();
     otherTrip.setTripId(999L);
     event.setTrip(otherTrip);
@@ -420,7 +420,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void updateEvent_notMember_throws403() {
+  void updateEvent_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
     when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
@@ -431,7 +431,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void updateEvent_missingTitle_throws400() {
+  void updateEvent_missingTitle_throws400() {
     validPutDTO.setEventTitle(null);
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
@@ -443,7 +443,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void updateEvent_dateOutsideTripRange_throws400() {
+  void updateEvent_dateOutsideTripRange_throws400() {
     validPutDTO.setDate(LocalDate.of(2030, 1, 1)); // far outside trip range
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
@@ -455,7 +455,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void updateEvent_endTimeBeforeStartTime_throws400() {
+  void updateEvent_endTimeBeforeStartTime_throws400() {
     validPutDTO.setTime(LocalTime.of(12, 0));
     validPutDTO.setEndTime(LocalTime.of(11, 0));
 
@@ -471,7 +471,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   // deleteEvent 
 
   @Test
-  public void deleteEvent_validInput_deletesSuccessfully() {
+  void deleteEvent_validInput_deletesSuccessfully() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
     when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
@@ -482,7 +482,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void deleteEvent_tripNotFound_throws404() {
+  void deleteEvent_tripNotFound_throws404() {
     when(tripRepository.findById(10L)).thenReturn(Optional.empty());
 
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
@@ -491,7 +491,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void deleteEvent_eventNotFound_throws404() {
+  void deleteEvent_eventNotFound_throws404() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.empty());
 
@@ -501,7 +501,7 @@ public void createEvent_endTimeBeforeStartTime_throws400() {
   }
 
   @Test
-  public void deleteEvent_notMember_throws403() {
+  void deleteEvent_notMember_throws403() {
     when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
     when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
     when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());

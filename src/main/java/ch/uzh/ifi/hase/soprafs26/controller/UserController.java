@@ -26,7 +26,6 @@ public class UserController {
 
 	@GetMapping("/users")
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public List<UserGetDTO> getAllUsers() {
 		// fetch all users in the internal representation
 		List<User> users = userService.getUsers();
@@ -41,7 +40,6 @@ public class UserController {
 
 	@PostMapping("/users")
 	@ResponseStatus(HttpStatus.CREATED)
-	@ResponseBody
 	public UserAuthDTO createUser(@Valid @RequestBody UserPostDTO userPostDTO) {
 	// 1. Null/blank checks first (service will also do these, but we need
     //    them here before we attempt the .equals() comparison)
@@ -69,7 +67,6 @@ public class UserController {
 
 	@PostMapping("/login")
 	@ResponseStatus(HttpStatus.OK) //200 OK
-	@ResponseBody
 	public UserAuthDTO login(@RequestBody UserPostDTO loginDTO) {
 
 		String username = loginDTO.getUsername();

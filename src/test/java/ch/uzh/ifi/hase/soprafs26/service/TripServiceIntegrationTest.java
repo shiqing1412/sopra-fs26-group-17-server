@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-public class TripServiceIntegrationTest {
+class TripServiceIntegrationTest {
 
     private static final String SHARE_CODE = "INTCODE1";
 
@@ -43,7 +43,7 @@ public class TripServiceIntegrationTest {
     private Trip trip;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         user = new User();
         user.setUsername("integrationuser");
         user.setPassword("password");
@@ -60,7 +60,7 @@ public class TripServiceIntegrationTest {
     }
 
     @Test
-    public void joinTripAlreadyMemberDoesNotCreateDuplicateMembership() {
+    void joinTripAlreadyMemberDoesNotCreateDuplicateMembership() {
         TripJoinResponseDTO firstCall = tripService.joinTrip(SHARE_CODE, user);
         assertFalse(firstCall.isAlreadyMember());
 
@@ -74,7 +74,7 @@ public class TripServiceIntegrationTest {
     }
 
     @Test
-    public void joinTripNewMemberCreatesMembershipInDb() {
+    void joinTripNewMemberCreatesMembershipInDb() {
         tripService.joinTrip(SHARE_CODE, user);
 
         List<?> memberships = membershipRepository.findByTrip(trip);
@@ -82,7 +82,7 @@ public class TripServiceIntegrationTest {
     }
 
     @Test
-    public void createTripPersistsOwnerMembership() {
+    void createTripPersistsOwnerMembership() {
         TripPostDTO dto = new TripPostDTO();
         dto.setTripTitle("New Trip");
         dto.setStartDate(LocalDate.of(2027, 8, 1));
@@ -97,7 +97,7 @@ public class TripServiceIntegrationTest {
     }
 
     @Test
-    public void getTripPreviewRetursTripDataWithoutCreatingMembership() {
+    void getTripPreviewRetursTripDataWithoutCreatingMembership() {
         TripPreviewDTO preview = tripService.getTripPreview(SHARE_CODE);
 
         assertNotNull(preview);

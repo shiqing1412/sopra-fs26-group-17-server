@@ -35,7 +35,6 @@ public class TripController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED) // 201 CREATED
-	@ResponseBody
 	public TripGetDTO createTrip(
 		@Valid @RequestBody TripPostDTO tripPostDTO, 
 		@RequestHeader("Authorization") String token) {
@@ -48,7 +47,6 @@ public class TripController {
 
 	@PostMapping ("/join/{joinToken}")
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public TripJoinResponseDTO joinTrip(
 		@PathVariable("joinToken") String joinToken, 
 		@RequestHeader("Authorization") String token) {
@@ -58,7 +56,6 @@ public class TripController {
 
 	@GetMapping("/join/{joinToken}/preview")
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public TripPreviewDTO getTripPreview(
 		@PathVariable("joinToken") String joinToken) {
 		return tripService.getTripPreview(joinToken);
@@ -66,7 +63,6 @@ public class TripController {
 
 	@GetMapping("/{tripId}")
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public TripDetailDTO getTripById(
 		@PathVariable("tripId") Long tripId, 
 		@RequestHeader("Authorization") String token) {
@@ -80,7 +76,6 @@ public class TripController {
 
 	@GetMapping //show all trips of the user
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public List<TripGetDTO> getAllTrips(
 		@RequestHeader("Authorization") String token) {
 		User currentUser = userService.validateToken(token);
@@ -93,7 +88,6 @@ public class TripController {
 
 	@GetMapping("/{tripId}/members")
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public List<TripMemberDTO> getTripMembers(
 		@PathVariable("tripId") Long tripId, 
 		@RequestHeader("Authorization") String token) {
@@ -103,7 +97,6 @@ public class TripController {
 
 	@DeleteMapping("/{tripId}/members/me")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public java.util.Map<String, String> leaveTrip(
 			@PathVariable("tripId") Long tripId,
 			@RequestHeader("Authorization") String token) {
@@ -115,7 +108,6 @@ public class TripController {
 
 	@DeleteMapping("/{tripId}")
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public java.util.Map<String, String> deleteTrip(
 		@PathVariable("tripId") Long tripId,
 		@RequestHeader("Authorization") String token) {
@@ -127,7 +119,6 @@ public class TripController {
 
 	@PatchMapping("/{tripId}/members/{userId}/owner")
 	@ResponseStatus(HttpStatus.OK)
-	@ResponseBody
 	public java.util.Map<String, Long> transferOwnership(
 		@PathVariable("tripId") Long tripId,
 		@PathVariable("userId") Long userId,

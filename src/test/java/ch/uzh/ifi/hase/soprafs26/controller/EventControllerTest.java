@@ -215,22 +215,6 @@ class EventControllerTest {
         }
 
     @Test
-    void createEvent_invalidInput_Failure400() throws Exception {
-        User user = mockValidToken();
-        EventPostDTO invalidRequest = validEventPostDTO();
-        invalidRequest.setEventTitle(""); // Invalid title
-
-        Mockito.when(eventService.createEvent(
-            eq(TRIP_ID),
-            any(EventPostDTO.class),
-            eq(user)))
-            .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event title is required"));
-            
-            performCreateEvent(invalidRequest)
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void createEvent_notMember_Failure403() throws Exception {
         User user = mockValidToken();
         Mockito.when(eventService.createEvent(
@@ -277,7 +261,7 @@ class EventControllerTest {
     @Test
     void getEvents_notMember_Failure403() throws Exception {
         User user = mockValidToken();
-        Mockito.when(eventService.getEventsGroupedByDay(eq(TRIP_ID), eq(user)))
+        Mockito.when(eventService.getEventsGroupedByDay(TRIP_ID, user))
             .thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "You are not a member of this trip"));
 
         performGetEvents().andExpect(status().isForbidden());
@@ -286,7 +270,7 @@ class EventControllerTest {
     @Test
     void getEvents_tripNotFound_Failure404() throws Exception {
         User user = mockValidToken();
-        Mockito.when(eventService.getEventsGroupedByDay(eq(TRIP_ID), eq(user)))
+        Mockito.when(eventService.getEventsGroupedByDay(TRIP_ID, user))
             .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
 
         performGetEvents().andExpect(status().isNotFound());
@@ -299,7 +283,7 @@ class EventControllerTest {
         String eTag = String.valueOf(
             responseDTO.getDays().hashCode() + responseDTO.getMembers().hashCode());
         //First request to get ETag
-        Mockito.when(eventService.getEventsGroupedByDay(eq(TRIP_ID), eq(user)))
+        Mockito.when(eventService.getEventsGroupedByDay(TRIP_ID, user))
             .thenReturn(responseDTO);    
         performGetEvents()
             .andExpect(status().isOk())

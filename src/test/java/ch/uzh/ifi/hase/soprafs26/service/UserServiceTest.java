@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * validateToken 
  */
 
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -35,7 +35,7 @@ public class UserServiceTest {
     private User testUser;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         testUser = new User();
@@ -49,7 +49,7 @@ public class UserServiceTest {
 //Register tests
 
     @Test //Register 201
-    public void createUser_validInputs_success() {
+    void createUser_validInputs_success() {
         User createdUser = userService.createUser(testUser);
 
         Mockito.verify(userRepository, Mockito.times(1)).save(Mockito.any());
@@ -60,7 +60,7 @@ public class UserServiceTest {
     }
 
     @Test //Register 409
-    public void createUser_duplicateUsername_throwsException() { 
+    void createUser_duplicateUsername_throwsException() { 
         userService.createUser(testUser);
 
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
@@ -69,28 +69,28 @@ public class UserServiceTest {
     }
 
     @Test //Register 400
-    public void createUser_blankPassword_throwsException() {
+    void createUser_blankPassword_throwsException() {
         testUser.setPassword("");
 
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 
     @Test //Register 400
-    public void createUser_shortPassword_throwsException() {
+    void createUser_shortPassword_throwsException() {
         testUser.setPassword("abc");
 
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 
     @Test //Register 400
-    public void createUser_blankUsername_throwsException() {
+    void createUser_blankUsername_throwsException() {
         testUser.setUsername("");
 
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 
     @Test //Register 400
-    public void createUser_nullUsername_throwsException() {
+    void createUser_nullUsername_throwsException() {
         testUser.setUsername(null);
 
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
@@ -99,7 +99,7 @@ public class UserServiceTest {
 //Login tests
 
     @Test //Login 200
-    public void login_validCredentials_success() {
+    void login_validCredentials_success() {
         String rawPassword = "password123";
         String hashedPassword = at.favre.lib.crypto.bcrypt.BCrypt.withDefaults().hashToString(12, rawPassword.toCharArray());
         testUser.setPassword(hashedPassword);
@@ -114,40 +114,39 @@ public class UserServiceTest {
     }
 
     @Test //Login 401
-    public void login_incorrectPassword_throwsException() {
-        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
-
-        assertThrows(ResponseStatusException.class, () -> userService.login(testUser.getUsername(), "wrongPassword"));
+    void login_incorrectPassword_throwsException() {
+        String username = testUser.getUsername();
+        assertThrows(ResponseStatusException.class, () -> userService.login(username, "wrongPassword"));
     }
 
     @Test //Login 401
-    public void login_nonExistentUsername_throwsException() {
+    void login_nonExistentUsername_throwsException() {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> userService.login("nonExistentUser", "password123"));
     }
 
     @Test //Not in spec: Login 400
-    public void login_blankUsername_throwsException() {
+    void login_blankUsername_throwsException() {
         assertThrows(ResponseStatusException.class, () -> userService.login("", "password123"));
     }
 
     @Test //Not in spec: Login 400
-    public void login_blankPassword_throwsException() {
+    void login_blankPassword_throwsException() {
         assertThrows(ResponseStatusException.class, () -> userService.login("testUsername", ""));
     }
 
 //GetUsers tests (Not in spec)
 
     @Test //GetUsers 200
-    public void getUsers_success() {
+    void getUsers_success() {
         userService.getUsers();
         Mockito.verify(userRepository, Mockito.times(1)).findAll();
     }
     
 // Logout tests
     @Test //Logout 200
-    public void logout_validToken_success() {
+    void logout_validToken_success() {
         String token = "validToken";
         testUser.setToken(token);
         testUser.setStatus(UserStatus.ONLINE);
@@ -158,7 +157,7 @@ public class UserServiceTest {
     }
 
     @Test //Logout 401
-    public void logout_invalidToken_throwsException() {
+    void logout_invalidToken_throwsException() {
         Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(null);
         assertThrows(ResponseStatusException.class, () -> userService.logout("invalidToken"));
     }

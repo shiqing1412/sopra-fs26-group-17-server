@@ -46,12 +46,11 @@ validateTripDates() 400 -> although in spec, but due to it's a private helper me
 No need to do: generateShareCode()
 Not implemented service yet: deleteTrip()
 
-Line Coverage:94%
 */
 
 
 @ExtendWith(MockitoExtension.class)
-public class TripServiceTest {
+class TripServiceTest {
 
     @Mock
     private TripRepository tripRepository;
@@ -102,7 +101,7 @@ public class TripServiceTest {
     }
 
     @Test //getAuthorizedTrip() 200, 403, 404
-    public void testGetAuthorizedTrip200() {
+    void testGetAuthorizedTrip200() {
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
         when(membershipRepository.existsByTripAndUser(trip, owner)).thenReturn(true);
         Trip authorizedTrip = tripService.getAuthorizedTrip(10L, owner);
@@ -111,14 +110,14 @@ public class TripServiceTest {
     }
 
     @Test //getAuthorizedTrip() 403 (in spec is 401(token missing/invalid), but here we check if user is not a member of the trip)
-    public void testGetAuthorizedTrip403() {
+    void testGetAuthorizedTrip403() {
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
         when(membershipRepository.existsByTripAndUser(trip, stranger)).thenReturn(false);
         assertThrows(ResponseStatusException.class, () -> tripService.getAuthorizedTrip(10L, stranger));
     }
 
     @Test //createTrip() 201
-    public void testCreateTrip201() {
+    void testCreateTrip201() {
         when(tripRepository.save(any(Trip.class))).thenReturn(trip);
         when(tripRepository.existsByShareCode(anyString())).thenReturn(false);
         Trip createdTrip = tripService.createTrip(tripPostDTO, owner);
@@ -128,13 +127,13 @@ public class TripServiceTest {
     }
 
     @Test //createTrip() 400
-    public void testCreateTrip400() {
+    void testCreateTrip400() {
         tripPostDTO.setEndDate(LocalDate.of(2027, 6, 30)); // End date before start date
         assertThrows(ResponseStatusException.class, () -> tripService.createTrip(tripPostDTO, owner));
     }
 
     @Test //getTripById() 200
-    public void testGetTripById200() {
+    void testGetTripById200() {
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
         Trip foundTrip = tripService.getTripById(10L);
         assertNotNull(foundTrip);
@@ -142,13 +141,13 @@ public class TripServiceTest {
     }
 
     @Test //getTripById() 404
-    public void testGetTripById404() {
+    void testGetTripById404() {
         when(tripRepository.findById(10L)).thenReturn(Optional.empty());
         assertThrows(ResponseStatusException.class, () -> tripService.getTripById(10L));
     }
 
     @Test //getTripsForUser() 200
-    public void testGetTripsForUser200() {
+    void testGetTripsForUser200() {
         Membership membership1 = new Membership();
         membership1.setTrip(trip);
         membership1.setUser(owner);
@@ -170,7 +169,7 @@ public class TripServiceTest {
     }
 
     @Test //getTripMembers() 200
-    public void testGetTripMembers200() {
+    void testGetTripMembers200() {
         Membership membership1 = new Membership();
         membership1.setUser(owner);
         Membership membership2 = new Membership();
@@ -186,20 +185,20 @@ public class TripServiceTest {
     }
 
     @Test //getTripMembers() 403 not a member
-    public void testGetTripMembers403() {   
+    void testGetTripMembers403() {   
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
         when(membershipRepository.existsByTripAndUser(trip, stranger)).thenReturn(false);
         assertThrows(ResponseStatusException.class, () -> tripService.getTripMembers(10L, stranger));
     }
 
     @Test //getTripMembers() 404 Trip not found
-    public void testGetTripMembers404() {
+    void testGetTripMembers404() {
         when(tripRepository.findById(10L)).thenReturn(Optional.empty());
         assertThrows(ResponseStatusException.class, () -> tripService.getTripMembers(10L, owner));
     }
 
     @Test //getTripPreview() 200
-    public void testGetTripPreview200() {
+    void testGetTripPreview200() {
         when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
         TripPreviewDTO preview = tripService.getTripPreview("ABC12345");
         assertNotNull(preview);
@@ -211,7 +210,7 @@ public class TripServiceTest {
     }
 
     @Test //joinTrip() 200 (new member)
-    public void testJoinTrip200() {
+    void testJoinTrip200() {
        when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
        when(membershipRepository.existsByTripAndUser(trip, member)).thenReturn(false);
        
@@ -224,7 +223,7 @@ public class TripServiceTest {
     }
 
     @Test //joinTrip()  200 (already a member)
-    public void testJoinTripAlreadyMember200() {
+    void testJoinTripAlreadyMember200() {
         when(tripRepository.findByShareCode("ABC12345")).thenReturn(Optional.of(trip));
         when(membershipRepository.existsByTripAndUser(trip, member)).thenReturn(true);
 
@@ -238,13 +237,13 @@ public class TripServiceTest {
     }
 
     @Test //joinTrip() 404 Trip not found
-    public void testJoinTrip404() {
+    void testJoinTrip404() {
         when(tripRepository.findByShareCode("INVALID_CODE")).thenReturn(Optional.empty());
         assertThrows(ResponseStatusException.class, () -> tripService.joinTrip("INVALID_CODE", member));
     }
 
     @Test //checkMembership() 403 if not a member or owner
-    public void testCheckMembership403() {
+    void testCheckMembership403() {
         when(membershipRepository.existsByTripAndUser(trip, stranger)).thenReturn(false);
         assertThrows(ResponseStatusException.class, () -> tripService.checkMembership(trip, stranger));
     }
