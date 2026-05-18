@@ -385,7 +385,7 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
             memberDTO.setUsername(em.getUser().getUsername());
             return memberDTO;
         })
-        .collect(Collectors.toList());
+        .toList();
     dto.setMembers(memberDTOs);
 
     if (callingUser != null) {
@@ -401,7 +401,7 @@ public void deleteEvent(Long tripId, Long eventId, User requestingUser) {
           .stream()
           .filter(em -> !em.getEvent().getEventId().equals(event.getEventId())
                   && em.getParticipationStatus() == ParticipationStatus.JOINED)
-          .collect(Collectors.toList());
+          .toList();
 
       boolean hasConflict = userJoinedElsewhere.stream()
           .anyMatch(em -> hasTimeConflict(event, em.getEvent()));
