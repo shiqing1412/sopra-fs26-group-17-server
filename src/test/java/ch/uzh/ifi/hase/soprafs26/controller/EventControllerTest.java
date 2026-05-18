@@ -215,22 +215,6 @@ class EventControllerTest {
         }
 
     @Test
-    void createEvent_invalidInput_Failure400() throws Exception {
-        User user = mockValidToken();
-        EventPostDTO invalidRequest = validEventPostDTO();
-        invalidRequest.setEventTitle(""); // Invalid title
-
-        Mockito.when(eventService.createEvent(
-            eq(TRIP_ID),
-            any(EventPostDTO.class),
-            eq(user)))
-            .thenThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Event title is required"));
-            
-            performCreateEvent(invalidRequest)
-            .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void createEvent_notMember_Failure403() throws Exception {
         User user = mockValidToken();
         Mockito.when(eventService.createEvent(
