@@ -115,9 +115,8 @@ class UserServiceTest {
 
     @Test //Login 401
     void login_incorrectPassword_throwsException() {
-        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
-
-        assertThrows(ResponseStatusException.class, () -> userService.login(testUser.getUsername(), "wrongPassword"));
+        String username = testUser.getUsername();
+        assertThrows(ResponseStatusException.class, () -> userService.login(username, "wrongPassword"));
     }
 
     @Test //Login 401
