@@ -49,7 +49,6 @@ public class EventController {
 
   @PostMapping("/{tripId}/events")
   @ResponseStatus(HttpStatus.CREATED)
-  @ResponseBody
   public EventGetDTO createEvent(
       @PathVariable Long tripId,
       @RequestHeader("Authorization") String token,
@@ -60,7 +59,6 @@ public class EventController {
 
   @PutMapping("/{tripId}/events/{eventId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  @ResponseBody
   public EventGetDTO updateEvent(
       @PathVariable Long tripId,
       @PathVariable Long eventId,
@@ -81,7 +79,6 @@ public class EventController {
   }
 
   @PostMapping("/{tripId}/events/{eventId}/join")
-  @ResponseBody
   public ResponseEntity<EventGetDTO> joinEvent(
         @PathVariable Long tripId,
         @PathVariable Long eventId,
@@ -92,7 +89,6 @@ public class EventController {
   }
 
   @DeleteMapping("/{tripId}/events/{eventId}/join")
-  @ResponseBody
   public ResponseEntity<EventGetDTO> dismissEvent(
         @PathVariable Long tripId,
         @PathVariable Long eventId,
