@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs26.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs26.rest.dto.EventMemberDTO;
-
 import java.util.List;
 import java.time.LocalDate;
 import java.time.LocalTime;
