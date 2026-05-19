@@ -70,7 +70,7 @@ class TripServiceTest {
     private TripPostDTO tripPostDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         owner = new User();
         owner.setUserId(1L);
         owner.setUsername("owner");
