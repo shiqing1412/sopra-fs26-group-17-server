@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
+import ch.uzh.ifi.hase.soprafs26.constant.ParticipationStatus;
+import ch.uzh.ifi.hase.soprafs26.entity.EventMember;
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.entity.Location;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
@@ -393,7 +395,7 @@ void createEvent_endTimeBeforeStartTime_throws400() {
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.updateEvent(10L, 100L, validPutDTO, member));
     assertEquals(404, ex.getStatusCode().value());
-}
+  }
 
   @Test
   void updateEvent_eventNotFound_throws404() {
@@ -509,6 +511,146 @@ void createEvent_endTimeBeforeStartTime_throws400() {
     ResponseStatusException ex = assertThrows(ResponseStatusException.class,
             () -> eventService.deleteEvent(10L, 100L, stranger));
     assertEquals(403, ex.getStatusCode().value());
+  }
+
+  @Test
+  void hasTimeConflict_overlappingOnSameDay_returnsTrue() {
+      Event a = new Event();
+      a.setDate(LocalDate.of(2027, 5, 1));
+      a.setTime(LocalTime.of(10, 0));
+      a.setEndTime(LocalTime.of(12, 0));
+
+      Event b = new Event();
+      b.setDate(LocalDate.of(2027, 5, 1));
+      b.setTime(LocalTime.of(11, 0));
+      b.setEndTime(LocalTime.of(13, 0));
+
+      assertTrue(eventService.hasTimeConflict(a, b));
+  }
+
+  @Test
+  void hasTimeConflict_adjacentNonOverlapping_returnsFalse() {
+      // b starts exactly when a ends — not a conflict
+      Event a = new Event();
+      a.setDate(LocalDate.of(2027, 5, 1));
+      a.setTime(LocalTime.of(10, 0));
+      a.setEndTime(LocalTime.of(11, 0));
+
+      Event b = new Event();
+      b.setDate(LocalDate.of(2027, 5, 1));
+      b.setTime(LocalTime.of(11, 0));
+      b.setEndTime(LocalTime.of(12, 0));
+
+      assertFalse(eventService.hasTimeConflict(a, b));
+  }
+
+  @Test
+  void hasTimeConflict_differentDays_returnsFalse() {
+      Event a = new Event();
+      a.setDate(LocalDate.of(2027, 5, 1));
+      a.setTime(LocalTime.of(10, 0));
+      a.setEndTime(LocalTime.of(12, 0));
+
+      Event b = new Event();
+      b.setDate(LocalDate.of(2027, 5, 2));
+      b.setTime(LocalTime.of(10, 0));
+      b.setEndTime(LocalTime.of(12, 0));
+
+      assertFalse(eventService.hasTimeConflict(a, b));
+  }
+
+  @Test
+  void joinEvent_validInput_setsJoinedAndReturnsDTO() {
+    when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+    when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
+    when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+    when(eventMemberRepository.findByEventAndUser(event, member)).thenReturn(Optional.empty());
+    when(eventMemberRepository.findByUserAndTripId(any(User.class), any(Long.class))).thenReturn(List.of());
+    when(eventMemberRepository.findByEvent(event)).thenReturn(List.of());
+
+    EventGetDTO result = eventService.joinEvent(10L, 100L, member);
+
+    assertNotNull(result);
+    verify(eventMemberRepository, atLeastOnce()).save(any(EventMember.class));
+  }
+
+  @Test
+  void joinEvent_tripNotFound_throws404() {
+      when(tripRepository.findById(10L)).thenReturn(Optional.empty());
+
+      ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+              () -> eventService.joinEvent(10L, 100L, member));
+      assertEquals(404, ex.getStatusCode().value());
+  }
+
+  @Test
+  void joinEvent_eventNotFound_throws404() {
+      when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+      when(eventRepository.findById(100L)).thenReturn(Optional.empty());
+
+      ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+              () -> eventService.joinEvent(10L, 100L, member));
+      assertEquals(404, ex.getStatusCode().value());
+  }
+
+  @Test
+  void joinEvent_notMember_throws403() {
+      when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+      when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
+      when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
+
+      ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+              () -> eventService.joinEvent(10L, 100L, stranger));
+      assertEquals(403, ex.getStatusCode().value());
+  }
+
+  @Test
+  void dismissEvent_notFromConflict_setsOptedOut() {
+      EventMember em = new EventMember();
+      em.setEvent(event);
+      em.setUser(member);
+      em.setParticipationStatus(ParticipationStatus.JOINED);
+
+      when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+      when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
+      when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+      when(eventMemberRepository.findByEventAndUser(event, member)).thenReturn(Optional.of(em));
+      when(eventMemberRepository.findByEvent(event)).thenReturn(List.of());
+      when(eventMemberRepository.findByUserAndTripId(any(User.class), any(Long.class))).thenReturn(List.of());
+
+      eventService.dismissEvent(10L, 100L, member, false);
+
+      assertEquals(ParticipationStatus.OPTED_OUT, em.getParticipationStatus());
+  }
+
+  @Test
+  void dismissEvent_fromConflictFlow_setsDismissed() {
+      EventMember em = new EventMember();
+      em.setEvent(event);
+      em.setUser(member);
+      em.setParticipationStatus(ParticipationStatus.JOINED);
+
+      when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+      when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
+      when(membershipRepository.findByTripIdAndUserId(10L, 1L)).thenReturn(Optional.of(membership));
+      when(eventMemberRepository.findByEventAndUser(event, member)).thenReturn(Optional.of(em));
+      when(eventMemberRepository.findByEvent(event)).thenReturn(List.of());
+      when(eventMemberRepository.findByUserAndTripId(any(User.class), any(Long.class))).thenReturn(List.of());
+
+      eventService.dismissEvent(10L, 100L, member, true);
+
+      assertEquals(ParticipationStatus.DISMISSED, em.getParticipationStatus());
+  }
+
+  @Test
+  void dismissEvent_notMember_throws403() {
+      when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
+      when(eventRepository.findById(100L)).thenReturn(Optional.of(event));
+      when(membershipRepository.findByTripIdAndUserId(10L, 99L)).thenReturn(Optional.empty());
+
+      ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+              () -> eventService.dismissEvent(10L, 100L, stranger, false));
+      assertEquals(403, ex.getStatusCode().value());
   }
 
 }
