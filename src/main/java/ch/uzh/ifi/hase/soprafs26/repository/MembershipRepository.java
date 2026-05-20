@@ -27,4 +27,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Long> {
     long countByTrip(Trip trip);
 
     Optional<Membership> findByTripAndUser(Trip trip, User user);
+
+    void deleteAllByTrip(Trip trip);
 }

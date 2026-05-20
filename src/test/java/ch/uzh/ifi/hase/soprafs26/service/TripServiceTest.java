@@ -20,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.InOrder;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -62,6 +63,7 @@ class TripServiceTest {
     private EventService eventService;
     @InjectMocks
     private TripService tripService;
+    private InOrder inOrder;
 
     private User owner;
     private User member;
@@ -250,12 +252,14 @@ class TripServiceTest {
 
 
     @Test
-    void deleteTrip_ownerSuccess_deletesTrip() {
+    void deleteTrip_ownerSuccess_deletesEventsMembershipsAndTrip() {
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
 
         tripService.deleteTrip(10L, owner);
 
-        verify(tripRepository, times(1)).delete(trip);
+        inOrder.verify(eventRepository).deleteAllByTrip(trip);
+        inOrder.verify(membershipRepository).deleteAllByTrip(trip);
+        inOrder.verify(tripRepository).delete(trip);
     }
 
     @Test
