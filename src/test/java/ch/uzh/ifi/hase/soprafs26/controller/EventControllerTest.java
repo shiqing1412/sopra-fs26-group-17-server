@@ -247,7 +247,7 @@ class EventControllerTest {
     @Test
     void getEvents_validMember_Success200() throws Exception {
         User user = mockValidToken();
-        Mockito.when(eventService.getEventsGroupedByDay(eq(TRIP_ID), eq(user)))
+        Mockito.when(eventService.getEventsGroupedByDay(TRIP_ID, user))
             .thenReturn(mockItineraryPollingResponseDTO());
 
         performGetEvents()
