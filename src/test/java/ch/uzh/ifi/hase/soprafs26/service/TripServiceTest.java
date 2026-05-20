@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
-
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.Membership;
@@ -72,7 +71,7 @@ class TripServiceTest {
     private TripPostDTO tripPostDTO;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         owner = new User();
         owner.setUserId(1L);
         owner.setUsername("owner");

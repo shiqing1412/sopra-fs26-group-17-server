@@ -212,6 +212,7 @@ public class TripService {
             membershipRepository.delete(membership);
         }
     }
+    
     @Transactional
     public void deleteTrip(Long tripId, User currentUser) {
         Trip trip = getTripById(tripId);

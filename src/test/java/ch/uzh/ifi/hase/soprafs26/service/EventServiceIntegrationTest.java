@@ -85,12 +85,14 @@ class EventServiceIntegrationTest {
   @Test
   void createEvent_dateOutsideRange_throws400AndDoesNotPersist() {
     EventPostDTO dto = validPostDTO(LocalDate.of(2027, 7, 1)); // outside June 1–5
+    Long tripId = trip.getTripId();
 
     assertThrows(ResponseStatusException.class,
-            () -> eventService.createEvent(trip.getTripId(), dto, user));
+            () -> eventService.createEvent(tripId, dto, user));
 
     assertTrue(eventRepository
-            .findByTrip_TripIdOrderByDateAscTimeAsc(trip.getTripId()).isEmpty());
+            .findByTrip_TripIdOrderByDateAscTimeAsc(tripId)
+            .isEmpty());
   }
 
 
