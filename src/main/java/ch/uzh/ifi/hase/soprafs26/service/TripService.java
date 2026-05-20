@@ -32,13 +32,16 @@ public class TripService {
     private final EventRepository eventRepository;
     private final EventService eventService;
 
-    public TripService(TripRepository tripRepository, MembershipRepository membershipRepository, EventRepository eventRepository,
-                   EventService eventService) {
-        this.tripRepository = tripRepository;
-        this.membershipRepository = membershipRepository;
-        this.eventRepository = eventRepository;
-        this.eventService = eventService;
-    }
+    public TripService(
+        TripRepository tripRepository, 
+        MembershipRepository membershipRepository, 
+        EventRepository eventRepository,
+        EventService eventService) {
+            this.tripRepository = tripRepository;
+            this.membershipRepository = membershipRepository;
+            this.eventRepository = eventRepository;
+            this.eventService = eventService;
+        }
 
     public Trip createTrip(TripPostDTO tripPostDTO, User owner) {
         Trip newTrip = new Trip();

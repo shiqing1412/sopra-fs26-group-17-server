@@ -62,7 +62,6 @@ class TripServiceTest {
     private EventService eventService;
     @InjectMocks
     private TripService tripService;
-    private InOrder inOrder;
 
     private User owner;
     private User member;
@@ -256,6 +255,7 @@ class TripServiceTest {
 
         tripService.deleteTrip(10L, owner);
 
+        InOrder inOrder = inOrder(eventRepository, membershipRepository, tripRepository);
         inOrder.verify(eventRepository).deleteAllByTrip(trip);
         inOrder.verify(membershipRepository).deleteAllByTrip(trip);
         inOrder.verify(tripRepository).delete(trip);
