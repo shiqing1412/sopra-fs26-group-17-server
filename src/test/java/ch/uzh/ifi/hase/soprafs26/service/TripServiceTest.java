@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs26.service;
 
-
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.Membership;
@@ -20,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.InOrder;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -250,12 +250,15 @@ class TripServiceTest {
 
 
     @Test
-    void deleteTrip_ownerSuccess_deletesTrip() {
+    void deleteTrip_ownerSuccess_deletesEventsMembershipsAndTrip() {
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
 
         tripService.deleteTrip(10L, owner);
 
-        verify(tripRepository, times(1)).delete(trip);
+        InOrder inOrder = inOrder(eventRepository, membershipRepository, tripRepository);
+        inOrder.verify(eventRepository).deleteAllByTrip(trip);
+        inOrder.verify(membershipRepository).deleteAllByTrip(trip);
+        inOrder.verify(tripRepository).delete(trip);
     }
 
     @Test

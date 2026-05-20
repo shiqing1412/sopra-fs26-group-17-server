@@ -32,13 +32,16 @@ public class TripService {
     private final EventRepository eventRepository;
     private final EventService eventService;
 
-    public TripService(TripRepository tripRepository, MembershipRepository membershipRepository, EventRepository eventRepository,
-                   EventService eventService) {
-        this.tripRepository = tripRepository;
-        this.membershipRepository = membershipRepository;
-        this.eventRepository = eventRepository;
-        this.eventService = eventService;
-    }
+    public TripService(
+        TripRepository tripRepository, 
+        MembershipRepository membershipRepository, 
+        EventRepository eventRepository,
+        EventService eventService) {
+            this.tripRepository = tripRepository;
+            this.membershipRepository = membershipRepository;
+            this.eventRepository = eventRepository;
+            this.eventService = eventService;
+        }
 
     public Trip createTrip(TripPostDTO tripPostDTO, User owner) {
         Trip newTrip = new Trip();
@@ -212,7 +215,8 @@ public class TripService {
             membershipRepository.delete(membership);
         }
     }
-
+    
+    @Transactional
     public void deleteTrip(Long tripId, User currentUser) {
         Trip trip = getTripById(tripId);
 
@@ -221,6 +225,8 @@ public class TripService {
                 "Only the trip owner can delete this trip.");
         }
 
+        eventRepository.deleteAllByTrip(trip);
+        membershipRepository.deleteAllByTrip(trip);
         tripRepository.delete(trip);
     }
 
