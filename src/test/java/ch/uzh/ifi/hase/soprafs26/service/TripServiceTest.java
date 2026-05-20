@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs26.entity.Membership;
 import ch.uzh.ifi.hase.soprafs26.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs26.repository.TripRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.MembershipRepository;
+import ch.uzh.ifi.hase.soprafs26.repository.EventMemberRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;  
@@ -58,6 +59,8 @@ class TripServiceTest {
     private MembershipRepository membershipRepository;
     @Mock
     private EventRepository eventRepository;
+    @Mock
+    private EventMemberRepository eventMemberRepository;
     @Mock
     private EventService eventService;
     @InjectMocks
@@ -250,12 +253,13 @@ class TripServiceTest {
 
 
     @Test
-    void deleteTrip_ownerSuccess_deletesEventsMembershipsAndTrip() {
+    void deleteTrip_ownerSuccess_deletesEventMembersEventsMembershipsAndTrip() {
         when(tripRepository.findById(10L)).thenReturn(Optional.of(trip));
 
         tripService.deleteTrip(10L, owner);
 
-        InOrder inOrder = inOrder(eventRepository, membershipRepository, tripRepository);
+        InOrder inOrder = inOrder(eventMemberRepository, eventRepository, membershipRepository, tripRepository);
+        inOrder.verify(eventMemberRepository).deleteAllByEvent_Trip(trip);
         inOrder.verify(eventRepository).deleteAllByTrip(trip);
         inOrder.verify(membershipRepository).deleteAllByTrip(trip);
         inOrder.verify(tripRepository).delete(trip);

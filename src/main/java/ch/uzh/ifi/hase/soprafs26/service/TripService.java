@@ -20,6 +20,7 @@ import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPostDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripJoinResponseDTO;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripMemberDTO;
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
+import ch.uzh.ifi.hase.soprafs26.repository.EventMemberRepository;
 import ch.uzh.ifi.hase.soprafs26.repository.EventRepository;
 import ch.uzh.ifi.hase.soprafs26.rest.dto.TripPreviewDTO;
 
@@ -31,16 +32,19 @@ public class TripService {
     private final MembershipRepository membershipRepository;
     private final EventRepository eventRepository;
     private final EventService eventService;
+    private final EventMemberRepository eventMemberRepository;
 
     public TripService(
         TripRepository tripRepository, 
         MembershipRepository membershipRepository, 
         EventRepository eventRepository,
-        EventService eventService) {
+        EventService eventService,
+        EventMemberRepository eventMemberRepository) {
             this.tripRepository = tripRepository;
             this.membershipRepository = membershipRepository;
             this.eventRepository = eventRepository;
             this.eventService = eventService;
+            this.eventMemberRepository = eventMemberRepository;
         }
 
     public Trip createTrip(TripPostDTO tripPostDTO, User owner) {
@@ -225,6 +229,7 @@ public class TripService {
                 "Only the trip owner can delete this trip.");
         }
 
+        eventMemberRepository.deleteAllByEvent_Trip(trip);
         eventRepository.deleteAllByTrip(trip);
         membershipRepository.deleteAllByTrip(trip);
         tripRepository.delete(trip);

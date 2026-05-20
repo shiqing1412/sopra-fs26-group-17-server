@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import ch.uzh.ifi.hase.soprafs26.constant.ParticipationStatus;
 import ch.uzh.ifi.hase.soprafs26.entity.Event;
 import ch.uzh.ifi.hase.soprafs26.entity.EventMember;
+import ch.uzh.ifi.hase.soprafs26.entity.Trip;
 import ch.uzh.ifi.hase.soprafs26.entity.User;
 
 
@@ -30,4 +31,6 @@ public interface EventMemberRepository extends JpaRepository<EventMember, Long> 
   void updateStatusByEventAndUser(@Param("event") Event event,
                                   @Param("user") User user,
                                   @Param("status") ParticipationStatus status);
+
+  void deleteAllByEvent_Trip(Trip trip);
 }
